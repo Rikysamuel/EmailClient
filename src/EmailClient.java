@@ -1,6 +1,11 @@
+import functions.CheckingMails;
+import functions.SendEmail;
 import java.awt.HeadlessException;
+import java.awt.Point;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.util.Collections;
 import java.util.Properties;
-
 import javax.mail.Message;
 import javax.mail.MessagingException;
 import javax.mail.PasswordAuthentication;
@@ -9,6 +14,7 @@ import javax.mail.Transport;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 import javax.swing.JOptionPane;
+import javax.swing.table.DefaultTableModel;
 
 /*
  * To change this license header, choose License Headers in Project Properties.
@@ -20,74 +26,74 @@ import javax.swing.JOptionPane;
  *
  * @author Rikysamuel
  */
-public class EmailClient extends javax.swing.JFrame { 
-    // Sender's email ID needs to be mentioned
-    String from = "rikz.samuel@gmail.com";
-    final String username = "rikysamuel";//change accordingly
-    final String password = "900911VF";//change accordingly
+public final class EmailClient extends javax.swing.JFrame { 
+    String hostServer;
+    String mailStoreType;
+    String account;
+    String accpass;
     
-    // Recipient's email ID needs to be mentioned.
-    private String to;
-    
-    //Mime message object
-    private Message message;
-
-    // Assuming you are sending email through relay.jangosmtp.net
-    private String host = "relay.jangosmtp.net";
-    
-    private Properties props;
-    private Session session;
-    
+    DefaultTableModel model;
+    SendEmail se;
+    CheckingMails cm;
     /**
      * Creates new form EmailClient
      */
     public EmailClient() {
-        props = new Properties();
-        init();
+        se = new SendEmail();
+        cm = new CheckingMails();
+        setUpEnvironment();
+        
         initComponents();
+        addPopUpMenu();
+        
+        model = (DefaultTableModel) InboxContent.getModel();
     }
     
-    public void init(){      
-      props.put("mail.smtp.auth", "true");
-      props.put("mail.smtp.starttls.enable", "true");
-      props.put("mail.smtp.host", host);
-      props.put("mail.smtp.port", "25");
+    public void setUpEnvironment(){
+        // Sending email
+        se.from = "rikz.samuel@gmail.com";
+        se.username = "rikysamuel";//change accordingly
+        se.password = "900911VF";//change accordingly
+        se.host = "relay.jangosmtp.net";
+        
+        //Retrieve email
+        cm.host = "imap.gmail.com";// change accordingly
+        cm.storeType = "imap";
+        cm.user = "rikysamueltan@gmail.com";// change accordingly
+        cm.password = "Brigade_101";// change accordingly
+    }
 
-      // Get the Session object.
-      session = Session.getInstance(props,
-         new javax.mail.Authenticator() {
+    public void fetchEmail(){
+        cm.check();
+        Collections.reverse(cm.emails);
+
+        cm.emails.stream().forEach((email) -> {
+            addInbox(email);
+        });
+    }
+    
+    public boolean send(){
+        return se.send(Recipient.getText(), Subject.getText(), Body.getText());
+    }
+    
+    public void addInbox(Object[] rowData){
+        model.addRow(rowData);
+    }
+    
+    private void addPopUpMenu(){
+        //sets the popup menu so it will show
+        addMouseListener(new MouseAdapter()
+        {
             @Override
-            protected PasswordAuthentication getPasswordAuthentication() {
-               return new PasswordAuthentication(username, password);
-	   }
-         });
+            public void mouseClicked(MouseEvent event) {
+                Point point = event.getPoint();
+                int column = InboxContent.columnAtPoint(point);
+
+                JOptionPane.showMessageDialog(InboxContent, "Column header #" + column + " is clicked");
+            }
+        });
     }
     
-    public void send(){
-        try {
-           to = Recipient.getText();
-           
-	   // Create a default MimeMessage object.
-	   message = new MimeMessage(session);
-	
-	   // Set From: header field of the header.
-	   message.setFrom(new InternetAddress(from));
-	
-	   // Set To: header field of the header.
-	   message.setRecipients(Message.RecipientType.TO,
-               InternetAddress.parse(to));
-	
-	   // Set Subject: header field
-	   message.setSubject(Subject.getText());
-	
-	   // Now set the actual message
-	   message.setText(Body.getText());
-
-      } catch (MessagingException e) {
-         throw new RuntimeException(e);
-      }
-    }
-
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -114,6 +120,15 @@ public class EmailClient extends javax.swing.JFrame {
         Cancel = new javax.swing.JButton();
         Send = new javax.swing.JButton();
         Inbox = new javax.swing.JPanel();
+        jScrollPane2 = new javax.swing.JScrollPane();
+        InboxContent = new javax.swing.JTable();
+        jScrollPane3 = new javax.swing.JScrollPane();
+        jTextArea1 = new javax.swing.JTextArea();
+        jPanel1 = new javax.swing.JPanel();
+        jLabel5 = new javax.swing.JLabel();
+        jLabel6 = new javax.swing.JLabel();
+        jLabel7 = new javax.swing.JLabel();
+        jButton1 = new javax.swing.JButton();
         Draft = new javax.swing.JPanel();
         Sent = new javax.swing.JPanel();
         jLabel4 = new javax.swing.JLabel();
@@ -159,15 +174,89 @@ public class EmailClient extends javax.swing.JFrame {
 
         jTabbedPane1.addTab("Compose Email", Compose);
 
+        InboxContent.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+
+            },
+            new String [] {
+                "Subject", "From", "Message"
+            }
+        ) {
+            Class[] types = new Class [] {
+                java.lang.String.class, java.lang.String.class, java.lang.String.class
+            };
+
+            public Class getColumnClass(int columnIndex) {
+                return types [columnIndex];
+            }
+        });
+        jScrollPane2.setViewportView(InboxContent);
+
+        jTextArea1.setColumns(20);
+        jTextArea1.setRows(5);
+        jTextArea1.setText("Message Body");
+        jTextArea1.setEnabled(false);
+        jScrollPane3.setViewportView(jTextArea1);
+
+        jLabel5.setFont(new java.awt.Font("Tahoma", 1, 18)); // NOI18N
+        jLabel5.setText("Subject");
+
+        jLabel6.setText("From:");
+
+        jLabel7.setText("Someone");
+
+        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
+        jPanel1.setLayout(jPanel1Layout);
+        jPanel1Layout.setHorizontalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabel5)
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addComponent(jLabel6)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jLabel7)))
+                .addGap(0, 0, Short.MAX_VALUE))
+        );
+        jPanel1Layout.setVerticalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addComponent(jLabel5, javax.swing.GroupLayout.PREFERRED_SIZE, 14, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel6)
+                    .addComponent(jLabel7))
+                .addGap(0, 8, Short.MAX_VALUE))
+        );
+
+        jButton1.setText("Sync");
+        jButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton1ActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout InboxLayout = new javax.swing.GroupLayout(Inbox);
         Inbox.setLayout(InboxLayout);
         InboxLayout.setHorizontalGroup(
             InboxLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 865, Short.MAX_VALUE)
+            .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 919, Short.MAX_VALUE)
+            .addComponent(jPanel1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(jScrollPane3)
+            .addGroup(InboxLayout.createSequentialGroup()
+                .addComponent(jButton1)
+                .addGap(0, 0, Short.MAX_VALUE))
         );
         InboxLayout.setVerticalGroup(
             InboxLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 469, Short.MAX_VALUE)
+            .addGroup(InboxLayout.createSequentialGroup()
+                .addComponent(jButton1)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 167, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 219, Short.MAX_VALUE))
         );
 
         jTabbedPane1.addTab("Inbox", Inbox);
@@ -176,7 +265,7 @@ public class EmailClient extends javax.swing.JFrame {
         Draft.setLayout(DraftLayout);
         DraftLayout.setHorizontalGroup(
             DraftLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 865, Short.MAX_VALUE)
+            .addGap(0, 919, Short.MAX_VALUE)
         );
         DraftLayout.setVerticalGroup(
             DraftLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -189,7 +278,7 @@ public class EmailClient extends javax.swing.JFrame {
         Sent.setLayout(SentLayout);
         SentLayout.setHorizontalGroup(
             SentLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 865, Short.MAX_VALUE)
+            .addGap(0, 919, Short.MAX_VALUE)
         );
         SentLayout.setVerticalGroup(
             SentLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -209,7 +298,7 @@ public class EmailClient extends javax.swing.JFrame {
                 .addGap(246, 246, 246)
                 .addComponent(jLabel4, javax.swing.GroupLayout.PREFERRED_SIZE, 364, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-            .addComponent(jTabbedPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 870, Short.MAX_VALUE)
+            .addComponent(jTabbedPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 924, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -226,14 +315,17 @@ public class EmailClient extends javax.swing.JFrame {
 
     private void SendActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_SendActionPerformed
         try{
-            send();
-            // Send message
-            Transport.send(message);
-            JOptionPane.showMessageDialog(this, "Message sent successfully....", "Success", JOptionPane.INFORMATION_MESSAGE);
-        } catch (HeadlessException | MessagingException e){
+            if (send()){
+                JOptionPane.showMessageDialog(this, "Message sent successfully....", "Success", JOptionPane.INFORMATION_MESSAGE);
+            }
+        } catch (HeadlessException e){
             System.err.println(e);
         }
     }//GEN-LAST:event_SendActionPerformed
+
+    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+        fetchEmail();
+    }//GEN-LAST:event_jButton1ActionPerformed
 
     /**
      * @param args the command line arguments
@@ -251,22 +343,14 @@ public class EmailClient extends javax.swing.JFrame {
                     break;
                 }
             }
-        } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(EmailClient.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(EmailClient.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(EmailClient.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
+        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | javax.swing.UnsupportedLookAndFeelException ex) {
             java.util.logging.Logger.getLogger(EmailClient.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
         //</editor-fold>
 
         /* Create and display the form */
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                new EmailClient().setVisible(true);
-            }
+        java.awt.EventQueue.invokeLater(() -> {
+            new EmailClient().setVisible(true);
         });
     }
 
@@ -277,17 +361,26 @@ public class EmailClient extends javax.swing.JFrame {
     private javax.swing.JPanel Compose;
     private javax.swing.JPanel Draft;
     private javax.swing.JPanel Inbox;
+    private javax.swing.JTable InboxContent;
     private javax.swing.ButtonGroup MenuButton;
     private javax.swing.JTextField Recipient;
     private javax.swing.JButton Send;
     private javax.swing.JPanel Sent;
     private javax.swing.JTextField Subject;
+    private javax.swing.JButton jButton1;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
+    private javax.swing.JLabel jLabel5;
+    private javax.swing.JLabel jLabel6;
+    private javax.swing.JLabel jLabel7;
+    private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JScrollPane jScrollPane2;
+    private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JTabbedPane jTabbedPane1;
+    private javax.swing.JTextArea jTextArea1;
     private java.awt.Menu menu1;
     private java.awt.Menu menu2;
     private java.awt.MenuBar menuBar1;
