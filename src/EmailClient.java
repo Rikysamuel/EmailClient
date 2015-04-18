@@ -119,6 +119,8 @@ public final class EmailClient extends javax.swing.JFrame {
         Body = new javax.swing.JTextArea();
         Cancel = new javax.swing.JButton();
         Send = new javax.swing.JButton();
+        jButton5 = new javax.swing.JButton();
+        jButton6 = new javax.swing.JButton();
         Inbox = new javax.swing.JPanel();
         jScrollPane2 = new javax.swing.JScrollPane();
         InboxContent = new javax.swing.JTable();
@@ -129,6 +131,9 @@ public final class EmailClient extends javax.swing.JFrame {
         jLabel6 = new javax.swing.JLabel();
         jLabel7 = new javax.swing.JLabel();
         jButton1 = new javax.swing.JButton();
+        jButton2 = new javax.swing.JButton();
+        jButton3 = new javax.swing.JButton();
+        jButton4 = new javax.swing.JButton();
         Draft = new javax.swing.JPanel();
         Sent = new javax.swing.JPanel();
         jLabel4 = new javax.swing.JLabel();
@@ -141,28 +146,17 @@ public final class EmailClient extends javax.swing.JFrame {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
-        Compose.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
-
         jLabel1.setText("To:");
-        Compose.add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(17, 50, 40, -1));
 
         jLabel2.setText("CC:");
-        Compose.add(jLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(19, 76, 30, -1));
 
         jLabel3.setText("Subject:");
-        Compose.add(jLabel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(21, 102, 50, -1));
-        Compose.add(Recipient, new org.netbeans.lib.awtextra.AbsoluteConstraints(79, 47, 760, -1));
-        Compose.add(CC, new org.netbeans.lib.awtextra.AbsoluteConstraints(79, 73, 760, -1));
-        Compose.add(Subject, new org.netbeans.lib.awtextra.AbsoluteConstraints(79, 99, 760, -1));
 
         Body.setColumns(20);
         Body.setRows(5);
         jScrollPane1.setViewportView(Body);
 
-        Compose.add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 156, 820, 310));
-
         Cancel.setText("Cancel");
-        Compose.add(Cancel, new org.netbeans.lib.awtextra.AbsoluteConstraints(80, 10, -1, -1));
 
         Send.setText("Send");
         Send.addActionListener(new java.awt.event.ActionListener() {
@@ -170,7 +164,76 @@ public final class EmailClient extends javax.swing.JFrame {
                 SendActionPerformed(evt);
             }
         });
-        Compose.add(Send, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 10, -1, -1));
+
+        jButton5.setText("Add Signature");
+
+        jButton6.setText("Encrypt");
+
+        javax.swing.GroupLayout ComposeLayout = new javax.swing.GroupLayout(Compose);
+        Compose.setLayout(ComposeLayout);
+        ComposeLayout.setHorizontalGroup(
+            ComposeLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(ComposeLayout.createSequentialGroup()
+                .addGroup(ComposeLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(ComposeLayout.createSequentialGroup()
+                        .addGap(19, 19, 19)
+                        .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(30, 30, 30)
+                        .addComponent(CC))
+                    .addGroup(ComposeLayout.createSequentialGroup()
+                        .addGap(10, 10, 10)
+                        .addComponent(Send)
+                        .addGap(10, 10, 10)
+                        .addComponent(jButton5)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(jButton6)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(Cancel)
+                        .addGap(0, 577, Short.MAX_VALUE))
+                    .addGroup(ComposeLayout.createSequentialGroup()
+                        .addGap(17, 17, 17)
+                        .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(22, 22, 22)
+                        .addComponent(Recipient))
+                    .addGroup(ComposeLayout.createSequentialGroup()
+                        .addGap(21, 21, 21)
+                        .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(8, 8, 8)
+                        .addComponent(Subject))
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.Alignment.TRAILING))
+                .addContainerGap())
+        );
+        ComposeLayout.setVerticalGroup(
+            ComposeLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(ComposeLayout.createSequentialGroup()
+                .addGap(10, 10, 10)
+                .addGroup(ComposeLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(Send)
+                    .addGroup(ComposeLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(jButton6)
+                        .addComponent(jButton5)
+                        .addComponent(Cancel)))
+                .addGap(14, 14, 14)
+                .addGroup(ComposeLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(ComposeLayout.createSequentialGroup()
+                        .addGap(3, 3, 3)
+                        .addComponent(jLabel1))
+                    .addComponent(Recipient, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(6, 6, 6)
+                .addGroup(ComposeLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(ComposeLayout.createSequentialGroup()
+                        .addGap(3, 3, 3)
+                        .addComponent(jLabel2))
+                    .addComponent(CC, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(6, 6, 6)
+                .addGroup(ComposeLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(ComposeLayout.createSequentialGroup()
+                        .addGap(3, 3, 3)
+                        .addComponent(jLabel3))
+                    .addComponent(Subject, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(37, 37, 37)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 310, javax.swing.GroupLayout.PREFERRED_SIZE))
+        );
 
         jTabbedPane1.addTab("Compose Email", Compose);
 
@@ -198,7 +261,7 @@ public final class EmailClient extends javax.swing.JFrame {
         jTextArea1.setEnabled(false);
         jScrollPane3.setViewportView(jTextArea1);
 
-        jLabel5.setFont(new java.awt.Font("Tahoma", 1, 18)); // NOI18N
+        jLabel5.setFont(new java.awt.Font("Tahoma", 1, 16)); // NOI18N
         jLabel5.setText("Subject");
 
         jLabel6.setText("From:");
@@ -221,12 +284,11 @@ public final class EmailClient extends javax.swing.JFrame {
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
-                .addComponent(jLabel5, javax.swing.GroupLayout.PREFERRED_SIZE, 14, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jLabel5)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 8, Short.MAX_VALUE)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel6)
-                    .addComponent(jLabel7))
-                .addGap(0, 8, Short.MAX_VALUE))
+                    .addComponent(jLabel7)))
         );
 
         jButton1.setText("Sync");
@@ -235,6 +297,12 @@ public final class EmailClient extends javax.swing.JFrame {
                 jButton1ActionPerformed(evt);
             }
         });
+
+        jButton2.setText("Reply");
+
+        jButton3.setText("Delete");
+
+        jButton4.setText("Forward");
 
         javax.swing.GroupLayout InboxLayout = new javax.swing.GroupLayout(Inbox);
         Inbox.setLayout(InboxLayout);
@@ -245,12 +313,22 @@ public final class EmailClient extends javax.swing.JFrame {
             .addComponent(jScrollPane3)
             .addGroup(InboxLayout.createSequentialGroup()
                 .addComponent(jButton1)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jButton2)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jButton3)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jButton4)
                 .addGap(0, 0, Short.MAX_VALUE))
         );
         InboxLayout.setVerticalGroup(
             InboxLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(InboxLayout.createSequentialGroup()
-                .addComponent(jButton1)
+                .addGroup(InboxLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jButton1)
+                    .addComponent(jButton2)
+                    .addComponent(jButton3)
+                    .addComponent(jButton4))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 167, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -298,7 +376,7 @@ public final class EmailClient extends javax.swing.JFrame {
                 .addGap(246, 246, 246)
                 .addComponent(jLabel4, javax.swing.GroupLayout.PREFERRED_SIZE, 364, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-            .addComponent(jTabbedPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 924, Short.MAX_VALUE)
+            .addComponent(jTabbedPane1)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -368,6 +446,11 @@ public final class EmailClient extends javax.swing.JFrame {
     private javax.swing.JPanel Sent;
     private javax.swing.JTextField Subject;
     private javax.swing.JButton jButton1;
+    private javax.swing.JButton jButton2;
+    private javax.swing.JButton jButton3;
+    private javax.swing.JButton jButton4;
+    private javax.swing.JButton jButton5;
+    private javax.swing.JButton jButton6;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
