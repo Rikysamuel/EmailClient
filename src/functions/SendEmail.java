@@ -16,6 +16,10 @@ import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 
+/**
+ * Used to send email
+ * @author Rikysamuel
+ */
 public final class SendEmail {
     public String from;
     public String username;

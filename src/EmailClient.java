@@ -3,6 +3,7 @@ import ecdsa.ECElGamal;
 import functions.CheckingMails;
 import functions.ReplyToEmail;
 import functions.SendEmail;
+import functions.SentMail;
 import java.awt.HeadlessException;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -38,31 +39,37 @@ public final class EmailClient extends javax.swing.JFrame {
     String accpass;
     
     DefaultTableModel model;
+    DefaultTableModel sentModel;
+    DefaultTableModel draftModel;
     SendEmail se;
     CheckingMails cm;
-
     ReplyToEmail re;
+    SentMail sm;
+    DraftEmail de;
     
     int selectedRowInbox;
+    int selectedRowSent;
+    int selectedRowDraft;
 
     
     /* ECDSA Attributes */
     ECElGamal el;
     BigInteger r;
     BigInteger s;
-    
-    String decryptedMessage;
 
     
     /**
      * Creates new form EmailClient
      */
     public EmailClient() {
-        decryptedMessage = "";
         selectedRowInbox = 0;
+        selectedRowSent = 0;
+        selectedRowDraft = 0;
         se = new SendEmail();
         cm = new CheckingMails();
         re = new ReplyToEmail();
+        sm = new SentMail();
+        de = new DraftEmail();
         setUpEnvironment();
         
         initComponents();
@@ -71,6 +78,8 @@ public final class EmailClient extends javax.swing.JFrame {
         addPopUpMenu();
         
         model = (DefaultTableModel) InboxContent.getModel();
+        sentModel = (DefaultTableModel) SentContent.getModel();
+        draftModel = (DefaultTableModel) DraftContent.getModel();
     }
     
     /**
@@ -79,6 +88,12 @@ public final class EmailClient extends javax.swing.JFrame {
     public void initLayout() {
         InboxContent.getColumnModel().getColumn(3).setMinWidth(0);
         InboxContent.getColumnModel().getColumn(3).setMaxWidth(0);
+        
+        SentContent.getColumnModel().getColumn(3).setMinWidth(0);
+        SentContent.getColumnModel().getColumn(3).setMaxWidth(0);
+        
+        DraftContent.getColumnModel().getColumn(3).setMinWidth(0);
+        DraftContent.getColumnModel().getColumn(3).setMaxWidth(0);
         
         hashField.setEnabled(false);
         jButton5.setEnabled(false);
@@ -93,7 +108,6 @@ public final class EmailClient extends javax.swing.JFrame {
      */
     public void setUpEnvironment(){
         // Sending email
-
         se.from = "tarnosupratman@gmail.com";
         se.username = "tarnosupratman@gmail.com";//change accordingly
         se.password = "085722064771";//change accordingly
@@ -111,10 +125,18 @@ public final class EmailClient extends javax.swing.JFrame {
         re.storeType = cm.storeType;
         re.user = cm.user;
         re.password = cm.password;
+        
+        // Retrieve Sent email
+        sm.user = cm.user;
+        sm.password = cm.password;
+        
+        // Retrieve Draft emai
+        de.user = cm.user;
+        de.password = cm.password;
     }
     
     /**
-     * Method used to fetch all messages from server
+     * Method used to fetch all messages in "Inbox" folder from server
      */
     public void fetchEmail(){
         cm.emails.clear();
@@ -124,6 +146,32 @@ public final class EmailClient extends javax.swing.JFrame {
 
         cm.emails.stream().forEach((email) -> {
             addInbox(email);
+        });
+    }
+    
+    /**
+     * Method used to fetch all messages in "Sent Mail" folder from Server
+     */
+    public void fetchSentMail(){
+        sm.emails.clear();
+        sm.fetch();
+        Collections.reverse(sm.emails);
+        
+        sm.emails.stream().forEach((email) -> {
+            addSent(email);
+        });
+    }
+    
+    /**
+     * Method used to fetch all messages in "Drafts" folder fom Server
+     */
+    public void fetchDraftEmail(){
+        de.emails.clear();
+        de.fetch();
+        Collections.reverse(de.emails);
+        
+        de.emails.stream().forEach((email) -> {
+            addDraft(email);
         });
     }
     
@@ -172,6 +220,22 @@ public final class EmailClient extends javax.swing.JFrame {
     }
     
     /**
+     * add every mail fetched to the SentContent
+     * @param rowData list of fetched mails
+     */
+    public void addSent(Object[] rowData){
+        sentModel.addRow(rowData);
+    }
+    
+    /**
+     * add every mail fetched to the DraftContent
+     * @param rowData 
+     */
+    public void addDraft(Object[] rowData){
+        draftModel.addRow(rowData);
+    }
+    
+    /**
      * InboxContent element Click Event Listener
      */
     private void addPopUpMenu(){
@@ -184,11 +248,46 @@ public final class EmailClient extends javax.swing.JFrame {
                 String subject = (InboxContent.getValueAt(selectedRowInbox, 0)!=null) ? InboxContent.getValueAt(selectedRowInbox, 0).toString() : "";
                 String from = (InboxContent.getValueAt(selectedRowInbox, 1)!=null) ? InboxContent.getValueAt(selectedRowInbox, 1).toString() : "";
                 String message = (InboxContent.getValueAt(selectedRowInbox, 2)!= null) ? InboxContent.getValueAt(selectedRowInbox, 2).toString() : "";
-                String id = (InboxContent.getValueAt(selectedRowInbox, 3)!= null) ? InboxContent.getValueAt(selectedRowInbox, 3).toString() : "";
                 
                 jLabel5.setText(subject);
                 jLabel7.setText(from);
-                jTextArea1.setText(message);
+                MessageBody.setText(message);
+            }
+        });
+        
+        SentContent.addMouseListener(new MouseAdapter()
+        {
+            @Override
+            public void mouseClicked(MouseEvent event){
+                selectedRowSent = SentContent.rowAtPoint(event.getPoint());
+                
+                String subject = (SentContent.getValueAt(selectedRowSent, 0)!=null) ? SentContent.getValueAt(selectedRowSent, 0).toString() : "";
+                String from = (SentContent.getValueAt(selectedRowSent, 1)!=null) ? SentContent.getValueAt(selectedRowSent, 1).toString() : "";
+                String message = (SentContent.getValueAt(selectedRowSent, 2)!= null) ? SentContent.getValueAt(selectedRowSent, 2).toString() : "";
+                String id = (SentContent.getValueAt(selectedRowSent, 3)!= null) ? SentContent.getValueAt(selectedRowSent, 3).toString() : "";
+                
+                SubjectSent.setText(subject);
+                SomeoneSent.setText(from);
+                BodySent.setText(message);
+                
+            }
+        });
+        
+        DraftContent.addMouseListener(new MouseAdapter()
+        {
+            @Override
+            public void mouseClicked(MouseEvent event){
+                selectedRowDraft = DraftContent.rowAtPoint(event.getPoint());
+                
+                String subject = (DraftContent.getValueAt(selectedRowDraft, 0)!=null) ? DraftContent.getValueAt(selectedRowDraft, 0).toString() : "";
+                String from = (DraftContent.getValueAt(selectedRowDraft, 1)!=null) ? DraftContent.getValueAt(selectedRowDraft, 1).toString() : "";
+                String message = (DraftContent.getValueAt(selectedRowDraft, 2)!= null) ? DraftContent.getValueAt(selectedRowDraft, 2).toString() : "";
+                String id = (DraftContent.getValueAt(selectedRowDraft, 3)!= null) ? DraftContent.getValueAt(selectedRowDraft, 3).toString() : "";
+                
+                SubjectDraft.setText(subject);
+                SomeoneDraft.setText(from);
+                BodyDraft.setText(message);
+                
             }
         });
     }
@@ -232,16 +331,11 @@ public final class EmailClient extends javax.swing.JFrame {
         Inbox = new javax.swing.JPanel();
         jScrollPane2 = new javax.swing.JScrollPane();
         InboxContent = new javax.swing.JTable();
-        jScrollPane3 = new javax.swing.JScrollPane();
-        jTextArea1 = new javax.swing.JTextArea();
         jPanel1 = new javax.swing.JPanel();
         jLabel5 = new javax.swing.JLabel();
         jLabel6 = new javax.swing.JLabel();
         jLabel7 = new javax.swing.JLabel();
         jButton1 = new javax.swing.JButton();
-        jButton2 = new javax.swing.JButton();
-        jButton3 = new javax.swing.JButton();
-        jButton4 = new javax.swing.JButton();
         jButton6 = new javax.swing.JButton();
         encKey = new javax.swing.JTextField();
         jLabel9 = new javax.swing.JLabel();
@@ -251,8 +345,28 @@ public final class EmailClient extends javax.swing.JFrame {
         jLabel13 = new javax.swing.JLabel();
         jTextField4 = new javax.swing.JTextField();
         jLabel14 = new javax.swing.JLabel();
+        jScrollPane6 = new javax.swing.JScrollPane();
+        MessageBody = new javax.swing.JEditorPane();
         Draft = new javax.swing.JPanel();
+        jButton14 = new javax.swing.JButton();
+        jScrollPane7 = new javax.swing.JScrollPane();
+        DraftContent = new javax.swing.JTable();
+        jPanel7 = new javax.swing.JPanel();
+        SubjectDraft = new javax.swing.JLabel();
+        SomeoneDraft = new javax.swing.JLabel();
+        jLabel23 = new javax.swing.JLabel();
+        jScrollPane8 = new javax.swing.JScrollPane();
+        BodyDraft = new javax.swing.JEditorPane();
         Sent = new javax.swing.JPanel();
+        jScrollPane5 = new javax.swing.JScrollPane();
+        BodySent = new javax.swing.JEditorPane();
+        jPanel6 = new javax.swing.JPanel();
+        SubjectSent = new javax.swing.JLabel();
+        SomeoneSent = new javax.swing.JLabel();
+        jLabel22 = new javax.swing.JLabel();
+        jScrollPane4 = new javax.swing.JScrollPane();
+        SentContent = new javax.swing.JTable();
+        jButton13 = new javax.swing.JButton();
         jPanel2 = new javax.swing.JPanel();
         jButton7 = new javax.swing.JButton();
         jButton8 = new javax.swing.JButton();
@@ -478,12 +592,6 @@ public final class EmailClient extends javax.swing.JFrame {
         });
         jScrollPane2.setViewportView(InboxContent);
 
-        jTextArea1.setColumns(20);
-        jTextArea1.setRows(5);
-        jTextArea1.setText("Message Body");
-        jTextArea1.setEnabled(false);
-        jScrollPane3.setViewportView(jTextArea1);
-
         jLabel5.setFont(new java.awt.Font("Tahoma", 1, 16)); // NOI18N
         jLabel5.setText("Subject");
 
@@ -521,17 +629,6 @@ public final class EmailClient extends javax.swing.JFrame {
             }
         });
 
-        jButton2.setText("Reply");
-        jButton2.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton2ActionPerformed(evt);
-            }
-        });
-
-        jButton3.setText("Delete");
-
-        jButton4.setText("Forward");
-
         jButton6.setText("Decrypt");
         jButton6.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -561,6 +658,10 @@ public final class EmailClient extends javax.swing.JFrame {
 
         jLabel14.setFont(new java.awt.Font("Lucida Grande", 1, 24)); // NOI18N
 
+        MessageBody.setEditable(false);
+        MessageBody.setText("Message Content");
+        jScrollPane6.setViewportView(MessageBody);
+
         javax.swing.GroupLayout InboxLayout = new javax.swing.GroupLayout(Inbox);
         Inbox.setLayout(InboxLayout);
         InboxLayout.setHorizontalGroup(
@@ -568,13 +669,7 @@ public final class EmailClient extends javax.swing.JFrame {
             .addComponent(jPanel1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
             .addGroup(InboxLayout.createSequentialGroup()
                 .addComponent(jButton1)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jButton2)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jButton3)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jButton4)
-                .addGap(0, 1065, Short.MAX_VALUE))
+                .addGap(0, 0, Short.MAX_VALUE))
             .addGroup(InboxLayout.createSequentialGroup()
                 .addGroup(InboxLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(InboxLayout.createSequentialGroup()
@@ -592,31 +687,27 @@ public final class EmailClient extends javax.swing.JFrame {
                                         .addComponent(jLabel13)))
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(jButton10, javax.swing.GroupLayout.PREFERRED_SIZE, 102, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(0, 0, Short.MAX_VALUE))
+                                .addGap(0, 132, Short.MAX_VALUE))
                             .addGroup(InboxLayout.createSequentialGroup()
                                 .addComponent(encKey, javax.swing.GroupLayout.PREFERRED_SIZE, 129, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                                 .addComponent(jButton6)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                 .addComponent(jLabel14))))
-                    .addComponent(jScrollPane3)
-                    .addComponent(jScrollPane2))
+                    .addComponent(jScrollPane6)
+                    .addComponent(jScrollPane2, javax.swing.GroupLayout.Alignment.TRAILING))
                 .addContainerGap())
         );
         InboxLayout.setVerticalGroup(
             InboxLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(InboxLayout.createSequentialGroup()
-                .addGroup(InboxLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jButton1)
-                    .addComponent(jButton2)
-                    .addComponent(jButton3)
-                    .addComponent(jButton4))
+                .addComponent(jButton1)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 167, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 204, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(jScrollPane6, javax.swing.GroupLayout.PREFERRED_SIZE, 204, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(InboxLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jLabel14, javax.swing.GroupLayout.Alignment.TRAILING)
@@ -642,28 +733,188 @@ public final class EmailClient extends javax.swing.JFrame {
 
         jTabbedPane1.addTab("Inbox", Inbox);
 
+        jButton14.setText("Sync");
+        jButton14.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton14ActionPerformed(evt);
+            }
+        });
+
+        jScrollPane7.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jScrollPane7MouseClicked(evt);
+            }
+            public void mouseReleased(java.awt.event.MouseEvent evt) {
+                jScrollPane7MouseReleased(evt);
+            }
+        });
+
+        DraftContent.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+
+            },
+            new String [] {
+                "Subject", "From", "Message", "id"
+            }
+        ));
+        jScrollPane7.setViewportView(DraftContent);
+
+        SubjectDraft.setFont(new java.awt.Font("Tahoma", 1, 16)); // NOI18N
+        SubjectDraft.setText("Subject");
+
+        SomeoneDraft.setText("Someone");
+
+        jLabel23.setText("From:");
+
+        javax.swing.GroupLayout jPanel7Layout = new javax.swing.GroupLayout(jPanel7);
+        jPanel7.setLayout(jPanel7Layout);
+        jPanel7Layout.setHorizontalGroup(
+            jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel7Layout.createSequentialGroup()
+                .addGap(10, 10, 10)
+                .addGroup(jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(SubjectDraft)
+                    .addGroup(jPanel7Layout.createSequentialGroup()
+                        .addComponent(jLabel23)
+                        .addGap(12, 12, 12)
+                        .addComponent(SomeoneDraft))))
+        );
+        jPanel7Layout.setVerticalGroup(
+            jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel7Layout.createSequentialGroup()
+                .addGap(10, 10, 10)
+                .addComponent(SubjectDraft)
+                .addGap(20, 20, 20)
+                .addGroup(jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabel23)
+                    .addComponent(SomeoneDraft)))
+        );
+
+        BodyDraft.setEditable(false);
+        BodyDraft.setText("Message Content");
+        BodyDraft.setToolTipText("");
+        jScrollPane8.setViewportView(BodyDraft);
+
         javax.swing.GroupLayout DraftLayout = new javax.swing.GroupLayout(Draft);
         Draft.setLayout(DraftLayout);
         DraftLayout.setHorizontalGroup(
             DraftLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 1333, Short.MAX_VALUE)
+            .addComponent(jPanel7, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addGroup(DraftLayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(DraftLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jScrollPane8, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
+                    .addComponent(jScrollPane7, javax.swing.GroupLayout.DEFAULT_SIZE, 705, Short.MAX_VALUE)
+                    .addGroup(DraftLayout.createSequentialGroup()
+                        .addComponent(jButton14)
+                        .addGap(0, 0, Short.MAX_VALUE)))
+                .addContainerGap())
         );
         DraftLayout.setVerticalGroup(
             DraftLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 683, Short.MAX_VALUE)
+            .addGroup(DraftLayout.createSequentialGroup()
+                .addGap(15, 15, 15)
+                .addComponent(jButton14)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(jScrollPane7, javax.swing.GroupLayout.PREFERRED_SIZE, 167, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jPanel7, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jScrollPane8, javax.swing.GroupLayout.DEFAULT_SIZE, 289, Short.MAX_VALUE)
+                .addContainerGap())
         );
 
         jTabbedPane1.addTab("Draft", Draft);
+
+        BodySent.setEditable(false);
+        BodySent.setText("Message Content");
+        BodySent.setToolTipText("");
+        jScrollPane5.setViewportView(BodySent);
+
+        SubjectSent.setFont(new java.awt.Font("Tahoma", 1, 16)); // NOI18N
+        SubjectSent.setText("Subject");
+
+        SomeoneSent.setText("Someone");
+
+        jLabel22.setText("From:");
+
+        javax.swing.GroupLayout jPanel6Layout = new javax.swing.GroupLayout(jPanel6);
+        jPanel6.setLayout(jPanel6Layout);
+        jPanel6Layout.setHorizontalGroup(
+            jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel6Layout.createSequentialGroup()
+                .addGap(10, 10, 10)
+                .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(SubjectSent)
+                    .addGroup(jPanel6Layout.createSequentialGroup()
+                        .addComponent(jLabel22)
+                        .addGap(12, 12, 12)
+                        .addComponent(SomeoneSent))))
+        );
+        jPanel6Layout.setVerticalGroup(
+            jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel6Layout.createSequentialGroup()
+                .addGap(10, 10, 10)
+                .addComponent(SubjectSent)
+                .addGap(20, 20, 20)
+                .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabel22)
+                    .addComponent(SomeoneSent)))
+        );
+
+        jScrollPane4.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jScrollPane4MouseClicked(evt);
+            }
+            public void mouseReleased(java.awt.event.MouseEvent evt) {
+                jScrollPane4MouseReleased(evt);
+            }
+        });
+
+        SentContent.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+
+            },
+            new String [] {
+                "Subject", "From", "Message", "id"
+            }
+        ));
+        jScrollPane4.setViewportView(SentContent);
+
+        jButton13.setText("Sync");
+        jButton13.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton13ActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout SentLayout = new javax.swing.GroupLayout(Sent);
         Sent.setLayout(SentLayout);
         SentLayout.setHorizontalGroup(
             SentLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 1333, Short.MAX_VALUE)
+            .addComponent(jPanel6, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addGroup(SentLayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(SentLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jScrollPane5, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
+                    .addComponent(jScrollPane4, javax.swing.GroupLayout.DEFAULT_SIZE, 705, Short.MAX_VALUE)
+                    .addGroup(SentLayout.createSequentialGroup()
+                        .addComponent(jButton13)
+                        .addGap(0, 0, Short.MAX_VALUE)))
+                .addContainerGap())
         );
         SentLayout.setVerticalGroup(
             SentLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 683, Short.MAX_VALUE)
+            .addGroup(SentLayout.createSequentialGroup()
+                .addGap(15, 15, 15)
+                .addComponent(jButton13)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(jScrollPane4, javax.swing.GroupLayout.PREFERRED_SIZE, 167, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jPanel6, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jScrollPane5, javax.swing.GroupLayout.DEFAULT_SIZE, 289, Short.MAX_VALUE)
+                .addContainerGap())
         );
 
         jTabbedPane1.addTab("Sent Email", Sent);
@@ -773,39 +1024,6 @@ public final class EmailClient extends javax.swing.JFrame {
 
     private void jScrollPane2MouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jScrollPane2MouseReleased
     }//GEN-LAST:event_jScrollPane2MouseReleased
-
-    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
-        System.out.println("Selected Row: " + selectedRowInbox);
-        
-        re.setUp();
-        int ret = re.getMessageData(Integer.valueOf(cm.emails.get(selectedRowInbox)[3]), cm.messages);
-        if (ret!=1){
-            JOptionPane.showConfirmDialog(null, "Message not Found!", "Error", JOptionPane.OK_OPTION, JOptionPane.ERROR_MESSAGE);
-        }
-        
-        ReplyPanel myPanel = new ReplyPanel();
-        
-        myPanel.fromMail = re.msgInfo.get(0);
-        myPanel.replyToMail = re.msgInfo.get(1);
-        myPanel.toMail = re.msgInfo.get(2);
-        myPanel.subjectMail = re.msgInfo.get(3);
-        myPanel.sentMail = re.msgInfo.get(4);
-        myPanel.fillBlank();
-        
-        int result = JOptionPane.showConfirmDialog(null, myPanel, "Reply", JOptionPane.OK_CANCEL_OPTION,JOptionPane.PLAIN_MESSAGE);
-        
-        boolean res = false;
-        if (result == JOptionPane.OK_OPTION){
-            int id = Integer.valueOf(cm.emails.get(selectedRowInbox)[3]);
-            
-            re.Reply("tes");
-        }
-        
-        if (res){
-            JOptionPane.showConfirmDialog(null, "Success", "Reply Email", JOptionPane.OK_OPTION,JOptionPane.PLAIN_MESSAGE);
-        }
-        
-    }//GEN-LAST:event_jButton2ActionPerformed
 
     private void jButton7ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton7ActionPerformed
         // Generate private & public key
@@ -925,7 +1143,7 @@ public final class EmailClient extends javax.swing.JFrame {
     }//GEN-LAST:event_jTextField3ActionPerformed
     
     private BigPoint getMessageSignature() {
-        String message = jTextArea1.getText();
+        String message = MessageBody.getText();
         String signature= new String();
         // Get signature raw
         for(int i=0;i<message.length()-3;++i) {
@@ -956,7 +1174,7 @@ public final class EmailClient extends javax.swing.JFrame {
     }
     
     private BigInteger getMessageHash() {
-        String message = jTextArea1.getText();
+        String message = MessageBody.getText();
         String msgBody = "";
         
         // Get message body
@@ -1009,7 +1227,7 @@ public final class EmailClient extends javax.swing.JFrame {
         String plainText = rc.EcbDecrypt(cm.emails.get(selectedRowInbox)[2], encKey.getText());
         
 //        JOptionPane.showConfirmDialog(null, plainText, "Decrypted text", JOptionPane.PLAIN_MESSAGE, JOptionPane.OK_OPTION);
-        jTextArea1.setText(plainText);
+        MessageBody.setText(plainText);
     }//GEN-LAST:event_jButton6ActionPerformed
 
     private void jButton11ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton11ActionPerformed
@@ -1056,6 +1274,30 @@ public final class EmailClient extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_jButton12ActionPerformed
 
+    private void jScrollPane4MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jScrollPane4MouseClicked
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jScrollPane4MouseClicked
+
+    private void jScrollPane4MouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jScrollPane4MouseReleased
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jScrollPane4MouseReleased
+
+    private void jButton13ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton13ActionPerformed
+        fetchSentMail();
+    }//GEN-LAST:event_jButton13ActionPerformed
+
+    private void jButton14ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton14ActionPerformed
+        fetchDraftEmail();
+    }//GEN-LAST:event_jButton14ActionPerformed
+
+    private void jScrollPane7MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jScrollPane7MouseClicked
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jScrollPane7MouseClicked
+
+    private void jScrollPane7MouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jScrollPane7MouseReleased
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jScrollPane7MouseReleased
+
     /**
      * @param args the command line arguments
      */
@@ -1086,16 +1328,25 @@ public final class EmailClient extends javax.swing.JFrame {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel AttachedFile;
     private javax.swing.JTextArea Body;
+    private javax.swing.JEditorPane BodyDraft;
+    private javax.swing.JEditorPane BodySent;
     private javax.swing.JTextField CC;
     private javax.swing.JPanel Compose;
     private javax.swing.JPanel Draft;
+    private javax.swing.JTable DraftContent;
     private javax.swing.JPanel Inbox;
     private javax.swing.JTable InboxContent;
     private javax.swing.ButtonGroup MenuButton;
+    private javax.swing.JEditorPane MessageBody;
     private javax.swing.JTextField Recipient;
     private javax.swing.JButton Send;
     private javax.swing.JPanel Sent;
+    private javax.swing.JTable SentContent;
+    private javax.swing.JLabel SomeoneDraft;
+    private javax.swing.JLabel SomeoneSent;
     private javax.swing.JTextField Subject;
+    private javax.swing.JLabel SubjectDraft;
+    private javax.swing.JLabel SubjectSent;
     private javax.swing.JTextField encKey;
     private javax.swing.JCheckBox encryptionCheckbox;
     private javax.swing.JTextField hashField;
@@ -1103,9 +1354,8 @@ public final class EmailClient extends javax.swing.JFrame {
     private javax.swing.JButton jButton10;
     private javax.swing.JButton jButton11;
     private javax.swing.JButton jButton12;
-    private javax.swing.JButton jButton2;
-    private javax.swing.JButton jButton3;
-    private javax.swing.JButton jButton4;
+    private javax.swing.JButton jButton13;
+    private javax.swing.JButton jButton14;
     private javax.swing.JButton jButton5;
     private javax.swing.JButton jButton6;
     private javax.swing.JButton jButton7;
@@ -1118,7 +1368,15 @@ public final class EmailClient extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel12;
     private javax.swing.JLabel jLabel13;
     private javax.swing.JLabel jLabel14;
+    private javax.swing.JLabel jLabel15;
+    private javax.swing.JLabel jLabel16;
+    private javax.swing.JLabel jLabel17;
+    private javax.swing.JLabel jLabel18;
+    private javax.swing.JLabel jLabel19;
     private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel20;
+    private javax.swing.JLabel jLabel22;
+    private javax.swing.JLabel jLabel23;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
@@ -1129,11 +1387,18 @@ public final class EmailClient extends javax.swing.JFrame {
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
+    private javax.swing.JPanel jPanel4;
+    private javax.swing.JPanel jPanel5;
+    private javax.swing.JPanel jPanel6;
+    private javax.swing.JPanel jPanel7;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
-    private javax.swing.JScrollPane jScrollPane3;
+    private javax.swing.JScrollPane jScrollPane4;
+    private javax.swing.JScrollPane jScrollPane5;
+    private javax.swing.JScrollPane jScrollPane6;
+    private javax.swing.JScrollPane jScrollPane7;
+    private javax.swing.JScrollPane jScrollPane8;
     private javax.swing.JTabbedPane jTabbedPane1;
-    private javax.swing.JTextArea jTextArea1;
     private javax.swing.JTextField jTextField3;
     private javax.swing.JTextField jTextField4;
     private java.awt.Menu menu1;
