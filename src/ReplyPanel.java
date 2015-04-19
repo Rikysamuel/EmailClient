@@ -129,7 +129,7 @@ public class ReplyPanel extends javax.swing.JPanel {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JTextField From;
     private javax.swing.JTextField Replyto;
-    private javax.swing.JTextArea body;
+    public javax.swing.JTextArea body;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;

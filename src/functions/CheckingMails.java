@@ -11,6 +11,10 @@ import javax.mail.NoSuchProviderException;
 import javax.mail.Session;
 import javax.mail.Store;
 
+/**
+ * Method used to check and fetch email
+ * @author Rikysamuel
+ */
 public class CheckingMails {
     
    public String host;
@@ -24,7 +28,10 @@ public class CheckingMails {
    public CheckingMails(){
        emails = new ArrayList<>();
    }
-
+   
+   /**
+    * method used to check and fetch email if possible
+    */
    public void check()
    {
       try {
@@ -60,10 +67,6 @@ public class CheckingMails {
          emails.add(new String[]{a,b,c,d});
 
       }
-
-      //close the store and folder objects
-      emailFolder.close(false);
-      store.close();
 
       } catch (NoSuchProviderException e) {
       } catch (MessagingException | IOException e) {
