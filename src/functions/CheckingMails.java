@@ -19,6 +19,7 @@ public class CheckingMails {
    public String password;
     
    public List<String[]> emails;
+   public Message[] messages;
     
    public CheckingMails(){
        emails = new ArrayList<>();
@@ -48,14 +49,15 @@ public class CheckingMails {
       emailFolder.open(Folder.READ_ONLY);
       
       // retrieve the messages from the folder in an array and print it
-      Message[] messages = emailFolder.getMessages();
+      messages = emailFolder.getMessages();
 
       for (int i = 0, n = messages.length; i < n; i++) {
          Message message = messages[i];
          String a = message.getSubject();
          String b = message.getFrom()[0].toString();
          String c = message.getContent().toString();
-         emails.add(new String[]{a,b,c});
+         String d = String.valueOf(i);
+         emails.add(new String[]{a,b,c,d});
 
       }
 
