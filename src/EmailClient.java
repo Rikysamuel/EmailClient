@@ -47,6 +47,8 @@ public final class EmailClient extends javax.swing.JFrame {
         addPopUpMenu();
         
         model = (DefaultTableModel) InboxContent.getModel();
+        addInbox(new String[]{"a","b","c"});
+        addInbox(new String[]{"d","e","f"});
     }
     
     public void setUpEnvironment(){
@@ -237,6 +239,15 @@ public final class EmailClient extends javax.swing.JFrame {
 
         jTabbedPane1.addTab("Compose Email", Compose);
 
+        jScrollPane2.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jScrollPane2MouseClicked(evt);
+            }
+            public void mouseReleased(java.awt.event.MouseEvent evt) {
+                jScrollPane2MouseReleased(evt);
+            }
+        });
+
         InboxContent.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
 
@@ -404,6 +415,26 @@ public final class EmailClient extends javax.swing.JFrame {
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         fetchEmail();
     }//GEN-LAST:event_jButton1ActionPerformed
+
+    private void jScrollPane2MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jScrollPane2MouseClicked
+        try{
+            int row = InboxContent.getSelectedRow();
+            int col = InboxContent.getSelectedColumn();
+            System.out.println(InboxContent.getModel().getValueAt(row, 0));
+        } catch(HeadlessException e){
+            System.err.println(e);
+        }
+    }//GEN-LAST:event_jScrollPane2MouseClicked
+
+    private void jScrollPane2MouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jScrollPane2MouseReleased
+        try{
+            int row = InboxContent.getSelectedRow();
+            int col = InboxContent.getSelectedColumn();
+            System.out.println(InboxContent.getModel().getValueAt(row, 0));
+        } catch(HeadlessException e){
+            System.err.println(e);
+        }
+    }//GEN-LAST:event_jScrollPane2MouseReleased
 
     /**
      * @param args the command line arguments
