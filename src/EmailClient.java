@@ -55,9 +55,19 @@ public final class EmailClient extends javax.swing.JFrame {
         setUpEnvironment();
         
         initComponents();
+        initLayout();
         addPopUpMenu();
         
         model = (DefaultTableModel) InboxContent.getModel();
+    }
+    
+    public void initLayout() {
+        jTextField2.setEnabled(false);
+        jButton5.setEnabled(false);
+        jTextField3.setEnabled(false);
+        jLabel10.setEnabled(false);
+        jLabel11.setEnabled(false);
+        jLabel8.setEnabled(false);
     }
     
     public void setUpEnvironment(){
@@ -136,10 +146,16 @@ public final class EmailClient extends javax.swing.JFrame {
         Subject = new javax.swing.JTextField();
         jScrollPane1 = new javax.swing.JScrollPane();
         Body = new javax.swing.JTextArea();
-        Cancel = new javax.swing.JButton();
         Send = new javax.swing.JButton();
+        jPanel3 = new javax.swing.JPanel();
         jButton5 = new javax.swing.JButton();
-        jButton6 = new javax.swing.JButton();
+        jLabel10 = new javax.swing.JLabel();
+        jCheckBox3 = new javax.swing.JCheckBox();
+        jCheckBox4 = new javax.swing.JCheckBox();
+        jTextField2 = new javax.swing.JTextField();
+        jLabel8 = new javax.swing.JLabel();
+        jLabel11 = new javax.swing.JLabel();
+        jTextField3 = new javax.swing.JTextField();
         Inbox = new javax.swing.JPanel();
         jScrollPane2 = new javax.swing.JScrollPane();
         InboxContent = new javax.swing.JTable();
@@ -179,8 +195,6 @@ public final class EmailClient extends javax.swing.JFrame {
         Body.setRows(5);
         jScrollPane1.setViewportView(Body);
 
-        Cancel.setText("Cancel");
-
         Send.setText("Send");
         Send.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -188,55 +202,131 @@ public final class EmailClient extends javax.swing.JFrame {
             }
         });
 
-        jButton5.setText("Add Signature");
+        javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
+        jPanel3.setLayout(jPanel3Layout);
+        jPanel3Layout.setHorizontalGroup(
+            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 704, Short.MAX_VALUE)
+        );
+        jPanel3Layout.setVerticalGroup(
+            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 51, Short.MAX_VALUE)
+        );
 
-        jButton6.setText("Encrypt");
+        jButton5.setText("Browse...");
+        jButton5.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton5ActionPerformed(evt);
+            }
+        });
+
+        jLabel10.setText("Private Key");
+
+        jCheckBox3.setText("Use Signature");
+        jCheckBox3.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jCheckBox3ActionPerformed(evt);
+            }
+        });
+
+        jCheckBox4.setText("Use Encryption");
+        jCheckBox4.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jCheckBox4ActionPerformed(evt);
+            }
+        });
+
+        jTextField2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jTextField2ActionPerformed(evt);
+            }
+        });
+
+        jLabel8.setText("asd");
+
+        jLabel11.setText("Encryption Key");
+
+        jTextField3.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jTextField3ActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout ComposeLayout = new javax.swing.GroupLayout(Compose);
         Compose.setLayout(ComposeLayout);
         ComposeLayout.setHorizontalGroup(
             ComposeLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(ComposeLayout.createSequentialGroup()
+                .addContainerGap()
                 .addGroup(ComposeLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(ComposeLayout.createSequentialGroup()
-                        .addGap(19, 19, 19)
-                        .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(30, 30, 30)
-                        .addComponent(CC))
+                        .addGroup(ComposeLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(ComposeLayout.createSequentialGroup()
+                                .addGroup(ComposeLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(jCheckBox4)
+                                    .addComponent(jCheckBox3))
+                                .addGap(298, 298, 298))
+                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, ComposeLayout.createSequentialGroup()
+                                .addGap(29, 29, 29)
+                                .addGroup(ComposeLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                                    .addGroup(ComposeLayout.createSequentialGroup()
+                                        .addComponent(jLabel11)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                        .addComponent(jTextField3, javax.swing.GroupLayout.PREFERRED_SIZE, 180, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                    .addGroup(ComposeLayout.createSequentialGroup()
+                                        .addComponent(jLabel10)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                        .addComponent(jTextField2, javax.swing.GroupLayout.PREFERRED_SIZE, 180, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(jButton5)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)))
+                        .addComponent(jLabel8)
+                        .addGap(174, 174, 174)
+                        .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(ComposeLayout.createSequentialGroup()
-                        .addGap(10, 10, 10)
-                        .addComponent(Send)
-                        .addGap(10, 10, 10)
-                        .addComponent(jButton5)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(jButton6)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(Cancel)
-                        .addGap(0, 577, Short.MAX_VALUE))
-                    .addGroup(ComposeLayout.createSequentialGroup()
-                        .addGap(17, 17, 17)
-                        .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(22, 22, 22)
-                        .addComponent(Recipient))
-                    .addGroup(ComposeLayout.createSequentialGroup()
-                        .addGap(21, 21, 21)
-                        .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(8, 8, 8)
-                        .addComponent(Subject))
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.Alignment.TRAILING))
+                        .addGroup(ComposeLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addGroup(ComposeLayout.createSequentialGroup()
+                                .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(22, 22, 22)
+                                .addComponent(Recipient))
+                            .addGroup(ComposeLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, ComposeLayout.createSequentialGroup()
+                                    .addGap(2, 2, 2)
+                                    .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addGap(30, 30, 30)
+                                    .addComponent(CC, javax.swing.GroupLayout.PREFERRED_SIZE, 628, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addComponent(Send, javax.swing.GroupLayout.PREFERRED_SIZE, 110, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGroup(ComposeLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, ComposeLayout.createSequentialGroup()
+                                        .addGap(4, 4, 4)
+                                        .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addGap(8, 8, 8)
+                                        .addComponent(Subject, javax.swing.GroupLayout.PREFERRED_SIZE, 628, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 690, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                        .addGap(0, 0, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         ComposeLayout.setVerticalGroup(
             ComposeLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(ComposeLayout.createSequentialGroup()
-                .addGap(10, 10, 10)
+                .addContainerGap()
+                .addComponent(jCheckBox3)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(ComposeLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(Send)
-                    .addGroup(ComposeLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                        .addComponent(jButton6)
-                        .addComponent(jButton5)
-                        .addComponent(Cancel)))
-                .addGap(14, 14, 14)
+                    .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(ComposeLayout.createSequentialGroup()
+                        .addGroup(ComposeLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jLabel10)
+                            .addComponent(jTextField2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jButton5)
+                            .addComponent(jLabel8))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jCheckBox4)))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(ComposeLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel11)
+                    .addComponent(jTextField3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(ComposeLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(ComposeLayout.createSequentialGroup()
                         .addGap(3, 3, 3)
@@ -254,8 +344,11 @@ public final class EmailClient extends javax.swing.JFrame {
                         .addGap(3, 3, 3)
                         .addComponent(jLabel3))
                     .addComponent(Subject, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(37, 37, 37)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 310, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(18, 18, 18)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 272, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(Send, javax.swing.GroupLayout.PREFERRED_SIZE, 42, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(9, Short.MAX_VALUE))
         );
 
         jTabbedPane1.addTab("Compose Email", Compose);
@@ -340,7 +433,7 @@ public final class EmailClient extends javax.swing.JFrame {
         Inbox.setLayout(InboxLayout);
         InboxLayout.setHorizontalGroup(
             InboxLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 919, Short.MAX_VALUE)
+            .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 709, Short.MAX_VALUE)
             .addComponent(jPanel1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
             .addComponent(jScrollPane3)
             .addGroup(InboxLayout.createSequentialGroup()
@@ -366,7 +459,7 @@ public final class EmailClient extends javax.swing.JFrame {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 219, Short.MAX_VALUE))
+                .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 319, Short.MAX_VALUE))
         );
 
         jTabbedPane1.addTab("Inbox", Inbox);
@@ -375,11 +468,11 @@ public final class EmailClient extends javax.swing.JFrame {
         Draft.setLayout(DraftLayout);
         DraftLayout.setHorizontalGroup(
             DraftLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 919, Short.MAX_VALUE)
+            .addGap(0, 709, Short.MAX_VALUE)
         );
         DraftLayout.setVerticalGroup(
             DraftLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 469, Short.MAX_VALUE)
+            .addGap(0, 577, Short.MAX_VALUE)
         );
 
         jTabbedPane1.addTab("Draft", Draft);
@@ -388,11 +481,11 @@ public final class EmailClient extends javax.swing.JFrame {
         Sent.setLayout(SentLayout);
         SentLayout.setHorizontalGroup(
             SentLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 919, Short.MAX_VALUE)
+            .addGap(0, 709, Short.MAX_VALUE)
         );
         SentLayout.setVerticalGroup(
             SentLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 469, Short.MAX_VALUE)
+            .addGap(0, 577, Short.MAX_VALUE)
         );
 
         jTabbedPane1.addTab("Sent Email", Sent);
@@ -426,20 +519,19 @@ public final class EmailClient extends javax.swing.JFrame {
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel2Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jButton7)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jButton7)
                     .addComponent(jButton9)
                     .addComponent(jButton8))
-                .addContainerGap(685, Short.MAX_VALUE))
+                .addContainerGap(541, Short.MAX_VALUE))
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel2Layout.createSequentialGroup()
                 .addGap(6, 6, 6)
-                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jButton7)
-                    .addComponent(jButton8))
+                .addComponent(jButton7)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jButton8)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jButton9)
                 .addContainerGap())
@@ -455,23 +547,25 @@ public final class EmailClient extends javax.swing.JFrame {
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGap(246, 246, 246)
-                .addComponent(jLabel4, javax.swing.GroupLayout.PREFERRED_SIZE, 364, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-            .addComponent(jTabbedPane1)
+                .addGap(325, 325, 325)
+                .addComponent(jLabel4, javax.swing.GroupLayout.PREFERRED_SIZE, 364, javax.swing.GroupLayout.PREFERRED_SIZE))
+            .addGroup(layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jTabbedPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 730, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGap(28, 28, 28)
+                .addContainerGap()
                 .addComponent(jLabel4)
-                .addGap(18, 18, 18)
-                .addComponent(jTabbedPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 497, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jTabbedPane1)
                 .addContainerGap())
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+    
 
     private void SendActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_SendActionPerformed
         try{
@@ -557,6 +651,42 @@ public final class EmailClient extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_jButton9ActionPerformed
 
+    private void jButton5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton5ActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jButton5ActionPerformed
+
+    private void jCheckBox3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCheckBox3ActionPerformed
+        if(jCheckBox3.isSelected()) {
+            jTextField2.setEnabled(true);
+            jButton5.setEnabled(true);
+            jLabel10.setEnabled(true);
+            jLabel8.setEnabled(true);
+        } else {
+            jTextField2.setEnabled(false);
+            jButton5.setEnabled(false);
+            jLabel10.setEnabled(false);
+            jLabel8.setEnabled(false);
+        }
+    }//GEN-LAST:event_jCheckBox3ActionPerformed
+
+    private void jCheckBox4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCheckBox4ActionPerformed
+        if(jCheckBox4.isSelected()) {
+            jTextField3.setEnabled(true);
+            jLabel11.setEnabled(true);
+        } else {
+            jTextField3.setEnabled(false);
+            jLabel11.setEnabled(false);
+        }
+    }//GEN-LAST:event_jCheckBox4ActionPerformed
+
+    private void jTextField2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextField2ActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jTextField2ActionPerformed
+
+    private void jTextField3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextField3ActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jTextField3ActionPerformed
+
     /**
      * @param args the command line arguments
      */
@@ -587,7 +717,6 @@ public final class EmailClient extends javax.swing.JFrame {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JTextArea Body;
     private javax.swing.JTextField CC;
-    private javax.swing.JButton Cancel;
     private javax.swing.JPanel Compose;
     private javax.swing.JPanel Draft;
     private javax.swing.JPanel Inbox;
@@ -602,25 +731,32 @@ public final class EmailClient extends javax.swing.JFrame {
     private javax.swing.JButton jButton3;
     private javax.swing.JButton jButton4;
     private javax.swing.JButton jButton5;
-    private javax.swing.JButton jButton6;
     private javax.swing.JButton jButton7;
     private javax.swing.JButton jButton8;
     private javax.swing.JButton jButton9;
+    private javax.swing.JCheckBox jCheckBox3;
+    private javax.swing.JCheckBox jCheckBox4;
     private javax.swing.JFileChooser jFileChooser1;
     private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel10;
+    private javax.swing.JLabel jLabel11;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel7;
+    private javax.swing.JLabel jLabel8;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
+    private javax.swing.JPanel jPanel3;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JTabbedPane jTabbedPane1;
     private javax.swing.JTextArea jTextArea1;
+    private javax.swing.JTextField jTextField2;
+    private javax.swing.JTextField jTextField3;
     private java.awt.Menu menu1;
     private java.awt.Menu menu2;
     private java.awt.MenuBar menuBar1;
