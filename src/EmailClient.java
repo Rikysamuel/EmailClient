@@ -15,15 +15,7 @@ import java.math.BigInteger;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.util.Collections;
-import java.util.Properties;
 import javafx.util.Pair;
-import javax.mail.Message;
-import javax.mail.MessagingException;
-import javax.mail.PasswordAuthentication;
-import javax.mail.Session;
-import javax.mail.Transport;
-import javax.mail.internet.InternetAddress;
-import javax.mail.internet.MimeMessage;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
@@ -56,12 +48,17 @@ public final class EmailClient extends javax.swing.JFrame {
     
     /* ECDSA Attributes */
     ECElGamal el;
+    BigInteger r;
+    BigInteger s;
+    
+    String decryptedMessage;
 
     
     /**
      * Creates new form EmailClient
      */
     public EmailClient() {
+        decryptedMessage = "";
         selectedRowInbox = 0;
         se = new SendEmail();
         cm = new CheckingMails();
@@ -70,17 +67,20 @@ public final class EmailClient extends javax.swing.JFrame {
         
         initComponents();
 
-        InboxContent.getColumnModel().getColumn(3).setMinWidth(0);
-        InboxContent.getColumnModel().getColumn(3).setMaxWidth(0);
-
         initLayout();
         addPopUpMenu();
         
         model = (DefaultTableModel) InboxContent.getModel();
     }
     
+    /**
+     * Initiate layout
+     */
     public void initLayout() {
-        jTextField2.setEnabled(false);
+        InboxContent.getColumnModel().getColumn(3).setMinWidth(0);
+        InboxContent.getColumnModel().getColumn(3).setMaxWidth(0);
+        
+        hashField.setEnabled(false);
         jButton5.setEnabled(false);
         jTextField3.setEnabled(false);
         jLabel10.setEnabled(false);
@@ -88,6 +88,9 @@ public final class EmailClient extends javax.swing.JFrame {
         jLabel8.setEnabled(false);
     }
     
+    /**
+     * Environment Setting before use the app
+     */
     public void setUpEnvironment(){
         // Sending email
 
@@ -109,7 +112,10 @@ public final class EmailClient extends javax.swing.JFrame {
         re.user = cm.user;
         re.password = cm.password;
     }
-
+    
+    /**
+     * Method used to fetch all messages from server
+     */
     public void fetchEmail(){
         cm.emails.clear();
         cm.check();
@@ -121,23 +127,25 @@ public final class EmailClient extends javax.swing.JFrame {
         });
     }
     
+    /**
+     * Method used to send message to a specific recipient
+     * @return success status
+     */
     public boolean send(){
         String message = Body.getText();        
-        String encKey = jTextField3.getText();
-//        System.out.println("Plain message:\n" + message);
+        String key = jTextField3.getText();
         
         // Signature
         if(signatureCheckbox.isSelected()) {
             // Get hash from message
             SHA1 sha = new SHA1();
             String hash = sha.digest(message.getBytes());
-//            System.out.println("Hash:\n" + hash);
             
             // Generate signature from hash
-            ECElGamal el = new ECElGamal();
-            el.setPrivateKey(new BigInteger(jTextField2.getText(), 16));
-            Pair<BigInteger, BigInteger> signature = el.generateSignature(new BigInteger(hash, 16));
-//            System.out.println("Signature:\n" + signature.getKey().toString(16) + "\n" + signature.getValue().toString(16));
+            ECElGamal elgamal = new ECElGamal();
+            elgamal.setPrivateKey(new BigInteger(hashField.getText(), 16));
+            Pair<BigInteger, BigInteger> signature = elgamal.generateSignature(new BigInteger(hash, 16));
+            
             // Append signature to message
             message += "<ds>\n" + signature.getKey().toString(16) + " " + signature.getValue().toString(16) + "\n</ds>";
             
@@ -145,21 +153,25 @@ public final class EmailClient extends javax.swing.JFrame {
         
         if(encryptionCheckbox.isSelected()) {
             RubikCipher rc = new RubikCipher();
-            message = rc.EcbEncrypt(message, encKey);
+            message = rc.EcbEncrypt(message, key);
         }
-//        System.out.println("Final message:\n" + message);
         RubikCipher rc = new RubikCipher();
         
-//        System.out.println("Decrypt: " + rc.EcbDecrypt(message, encKey));
         return se.send(Recipient.getText(), Subject.getText(), message);
     }
     
+    /**
+     * add every mail fetched to the InboxContent
+     * @param rowData list of fetched mails
+     */
     public void addInbox(Object[] rowData){
         model.addRow(rowData);
     }
     
+    /**
+     * InboxContent element Click Event Listener
+     */
     private void addPopUpMenu(){
-        //sets the popup menu so it will show
         InboxContent.addMouseListener(new MouseAdapter()
         {
             @Override
@@ -208,7 +220,7 @@ public final class EmailClient extends javax.swing.JFrame {
         jLabel10 = new javax.swing.JLabel();
         signatureCheckbox = new javax.swing.JCheckBox();
         encryptionCheckbox = new javax.swing.JCheckBox();
-        jTextField2 = new javax.swing.JTextField();
+        hashField = new javax.swing.JTextField();
         jLabel8 = new javax.swing.JLabel();
         jLabel11 = new javax.swing.JLabel();
         jTextField3 = new javax.swing.JTextField();
@@ -231,8 +243,8 @@ public final class EmailClient extends javax.swing.JFrame {
         jLabel12 = new javax.swing.JLabel();
         jButton10 = new javax.swing.JButton();
         jButton11 = new javax.swing.JButton();
-        jLabel13 = new javax.swing.JLabel();
-        jTextField4 = new javax.swing.JTextField();
+        filename = new javax.swing.JLabel();
+        keyPrivate = new javax.swing.JTextField();
         Draft = new javax.swing.JPanel();
         Sent = new javax.swing.JPanel();
         jPanel2 = new javax.swing.JPanel();
@@ -300,9 +312,9 @@ public final class EmailClient extends javax.swing.JFrame {
             }
         });
 
-        jTextField2.addActionListener(new java.awt.event.ActionListener() {
+        hashField.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jTextField2ActionPerformed(evt);
+                hashFieldActionPerformed(evt);
             }
         });
 
@@ -340,7 +352,7 @@ public final class EmailClient extends javax.swing.JFrame {
                                     .addGroup(ComposeLayout.createSequentialGroup()
                                         .addComponent(jLabel10)
                                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                        .addComponent(jTextField2, javax.swing.GroupLayout.PREFERRED_SIZE, 180, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                                        .addComponent(hashField, javax.swing.GroupLayout.PREFERRED_SIZE, 180, javax.swing.GroupLayout.PREFERRED_SIZE)))
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(jButton5)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)))
@@ -381,7 +393,7 @@ public final class EmailClient extends javax.swing.JFrame {
                     .addGroup(ComposeLayout.createSequentialGroup()
                         .addGroup(ComposeLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(jLabel10)
-                            .addComponent(jTextField2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(hashField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(jButton5)
                             .addComponent(jLabel8))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -517,10 +529,13 @@ public final class EmailClient extends javax.swing.JFrame {
         });
 
         jButton11.setText("Browse file...");
+        jButton11.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton11ActionPerformed(evt);
+            }
+        });
 
-        jLabel13.setText("jLabel13");
-
-        jTextField4.setText("jTextField4");
+        filename.setText("Filename");
 
         javax.swing.GroupLayout InboxLayout = new javax.swing.GroupLayout(Inbox);
         Inbox.setLayout(InboxLayout);
@@ -550,11 +565,11 @@ public final class EmailClient extends javax.swing.JFrame {
                                 .addComponent(jButton6))
                             .addGroup(InboxLayout.createSequentialGroup()
                                 .addGroup(InboxLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(jTextField4, javax.swing.GroupLayout.PREFERRED_SIZE, 391, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(keyPrivate, javax.swing.GroupLayout.PREFERRED_SIZE, 391, javax.swing.GroupLayout.PREFERRED_SIZE)
                                     .addGroup(InboxLayout.createSequentialGroup()
                                         .addComponent(jButton11)
                                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                        .addComponent(jLabel13)))
+                                        .addComponent(filename)))
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(jButton10, javax.swing.GroupLayout.PREFERRED_SIZE, 102, javax.swing.GroupLayout.PREFERRED_SIZE)))
                         .addGap(0, 0, Short.MAX_VALUE))
@@ -586,11 +601,11 @@ public final class EmailClient extends javax.swing.JFrame {
                     .addGroup(InboxLayout.createSequentialGroup()
                         .addGroup(InboxLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(jLabel12)
-                            .addComponent(jTextField4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(keyPrivate, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(InboxLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(jButton11)
-                            .addComponent(jLabel13)))
+                            .addComponent(filename)))
                     .addGroup(InboxLayout.createSequentialGroup()
                         .addGap(1, 1, 1)
                         .addComponent(jButton10, javax.swing.GroupLayout.DEFAULT_SIZE, 64, Short.MAX_VALUE)))
@@ -741,10 +756,17 @@ public final class EmailClient extends javax.swing.JFrame {
         
         int result = JOptionPane.showConfirmDialog(null, myPanel, "Reply", JOptionPane.OK_CANCEL_OPTION,JOptionPane.PLAIN_MESSAGE);
         
+        boolean res = false;
         if (result == JOptionPane.OK_OPTION){
             int id = Integer.valueOf(cm.emails.get(selectedRowInbox)[3]);
-//            re.Reply(id , cm.messages[id], myPanel.body);
+            
+            re.Reply("tes");
         }
+        
+        if (res){
+            JOptionPane.showConfirmDialog(null, "Success", "Reply Email", JOptionPane.OK_OPTION,JOptionPane.PLAIN_MESSAGE);
+        }
+        
     }//GEN-LAST:event_jButton2ActionPerformed
 
     private void jButton7ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton7ActionPerformed
@@ -812,7 +834,7 @@ public final class EmailClient extends javax.swing.JFrame {
     }//GEN-LAST:event_jButton9ActionPerformed
 
     private void jButton5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton5ActionPerformed
-        jTextField2.setText("");
+        hashField.setText("");
         int returnVal = jFileChooser1.showOpenDialog(this);
         if(returnVal == JFileChooser.APPROVE_OPTION) {
             File privateKeyFile = jFileChooser1.getSelectedFile();
@@ -822,7 +844,7 @@ public final class EmailClient extends javax.swing.JFrame {
                 BufferedReader reader = Files.newBufferedReader(privateKeyFile.toPath(), charset);
                 String privKey = reader.readLine();
                 BigInteger pK = new BigInteger(privKey);
-                jTextField2.setText(pK.toString(16));
+                hashField.setText(pK.toString(16));
             } catch (IOException ex) {
                 System.out.println("Error reading file:" + ex);
             }
@@ -834,12 +856,12 @@ public final class EmailClient extends javax.swing.JFrame {
 
     private void signatureCheckboxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_signatureCheckboxActionPerformed
         if(signatureCheckbox.isSelected()) {
-            jTextField2.setEnabled(true);
+            hashField.setEnabled(true);
             jButton5.setEnabled(true);
             jLabel10.setEnabled(true);
             jLabel8.setEnabled(true);
         } else {
-            jTextField2.setEnabled(false);
+            hashField.setEnabled(false);
             jButton5.setEnabled(false);
             jLabel10.setEnabled(false);
             jLabel8.setEnabled(false);
@@ -856,27 +878,53 @@ public final class EmailClient extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_encryptionCheckboxActionPerformed
 
-    private void jTextField2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextField2ActionPerformed
+    private void hashFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_hashFieldActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_jTextField2ActionPerformed
+    }//GEN-LAST:event_hashFieldActionPerformed
 
     private void jTextField3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextField3ActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_jTextField3ActionPerformed
 
     private void jButton10ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton10ActionPerformed
-        // TODO add your handling code here:
+        ECElGamal elgamal = new ECElGamal();
+        String signature = decryptedMessage.substring(decryptedMessage.indexOf("<ds>")+4,decryptedMessage.indexOf("</ds>"));
+        System.out.println(signature);
+//        elgamal.verifySignature(r, s, hashVal, publicKey);
     }//GEN-LAST:event_jButton10ActionPerformed
 
     private void jButton6ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton6ActionPerformed
+        decryptedMessage = "";
         re.setUp();
         int ret = re.getMessageData(Integer.valueOf(cm.emails.get(selectedRowInbox)[3]), cm.messages);
         
         RubikCipher rc = new RubikCipher();
-        String plaintText = rc.EcbDecrypt(cm.emails.get(selectedRowInbox)[2], encKey.getText());
+        decryptedMessage = rc.EcbDecrypt(cm.emails.get(selectedRowInbox)[2], encKey.getText());
         
-        JOptionPane.showConfirmDialog(null, plaintText, "Decrypted text", JOptionPane.PLAIN_MESSAGE, JOptionPane.OK_OPTION);
+        JOptionPane.showConfirmDialog(null, decryptedMessage, "Decrypted text", JOptionPane.PLAIN_MESSAGE, JOptionPane.OK_OPTION);
     }//GEN-LAST:event_jButton6ActionPerformed
+
+    private void jButton11ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton11ActionPerformed
+        int returnVal = jFileChooser1.showOpenDialog(this);
+        if(returnVal == JFileChooser.APPROVE_OPTION) {
+            File privateKeyFile = jFileChooser1.getSelectedFile();
+            filename.setText(privateKeyFile.getName());
+            Charset charset = Charset.forName("UTF-8");
+            try {
+                BufferedReader reader = Files.newBufferedReader(privateKeyFile.toPath(), charset);
+                String privKey = reader.readLine();
+                r = new BigInteger(privKey.substring(0, privKey.indexOf(' ')));
+                s = new BigInteger(privKey.substring(privKey.indexOf(' ')+1));
+                System.out.println("r: " + r);
+                System.out.println("s: " + s);
+            } catch (IOException ex) {
+                System.out.println("Error reading file:" + ex);
+            }
+            
+        } else {
+            System.out.println("File access cancelled by user.");
+        }
+    }//GEN-LAST:event_jButton11ActionPerformed
 
     /**
      * @param args the command line arguments
@@ -919,6 +967,8 @@ public final class EmailClient extends javax.swing.JFrame {
     private javax.swing.JTextField Subject;
     private javax.swing.JTextField encKey;
     private javax.swing.JCheckBox encryptionCheckbox;
+    private javax.swing.JLabel filename;
+    private javax.swing.JTextField hashField;
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton10;
     private javax.swing.JButton jButton11;
@@ -935,7 +985,6 @@ public final class EmailClient extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel11;
     private javax.swing.JLabel jLabel12;
-    private javax.swing.JLabel jLabel13;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
@@ -952,9 +1001,8 @@ public final class EmailClient extends javax.swing.JFrame {
     private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JTabbedPane jTabbedPane1;
     private javax.swing.JTextArea jTextArea1;
-    private javax.swing.JTextField jTextField2;
     private javax.swing.JTextField jTextField3;
-    private javax.swing.JTextField jTextField4;
+    private javax.swing.JTextField keyPrivate;
     private java.awt.Menu menu1;
     private java.awt.Menu menu2;
     private java.awt.MenuBar menuBar1;

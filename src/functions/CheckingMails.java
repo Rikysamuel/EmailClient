@@ -62,8 +62,8 @@ public class CheckingMails {
       }
 
       //close the store and folder objects
-      emailFolder.close(false);
-      store.close();
+//      emailFolder.close(false);
+//      store.close();
 
       } catch (NoSuchProviderException e) {
       } catch (MessagingException | IOException e) {
