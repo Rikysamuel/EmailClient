@@ -1,6 +1,7 @@
 import ecdsa.BigPoint;
 import ecdsa.ECElGamal;
 import functions.CheckingMails;
+import functions.ReplyToEmail;
 import functions.SendEmail;
 import java.awt.HeadlessException;
 import java.awt.event.MouseAdapter;
@@ -14,6 +15,7 @@ import java.math.BigInteger;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.util.Collections;
+<<<<<<< HEAD
 import java.util.Properties;
 import javafx.util.Pair;
 import javax.mail.Message;
@@ -23,6 +25,8 @@ import javax.mail.Session;
 import javax.mail.Transport;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
+=======
+>>>>>>> 466832cf3c88fdcb4c885353f8cd22bc50af8176
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
@@ -47,19 +51,31 @@ public final class EmailClient extends javax.swing.JFrame {
     DefaultTableModel model;
     SendEmail se;
     CheckingMails cm;
+
+    ReplyToEmail re;
+    
+    int selectedRowInbox;
+
     
     /* ECDSA Attributes */
     ECElGamal el;
+
     
     /**
      * Creates new form EmailClient
      */
     public EmailClient() {
+        selectedRowInbox = 0;
         se = new SendEmail();
         cm = new CheckingMails();
+        re = new ReplyToEmail();
         setUpEnvironment();
         
         initComponents();
+
+        InboxContent.getColumnModel().getColumn(3).setMinWidth(0);
+        InboxContent.getColumnModel().getColumn(3).setMaxWidth(0);
+
         initLayout();
         addPopUpMenu();
         
@@ -83,17 +99,24 @@ public final class EmailClient extends javax.swing.JFrame {
         se.password = "085722064771";//change accordingly
         se.host = "smtp.gmail.com";
         
-        //Retrieve email
+        // Retrieve email
         cm.host = "imap.gmail.com";// change accordingly
         cm.storeType = "imap";
-
-        cm.user = "edmund.ophie@gmail.com";// change accordingly
+        cm.user = "rikysamueltan@gmail.com";// change accordingly
         cm.password = "";// change accordingly
+
+        // Reply email
+        re.imapHost = cm.host;
+        re.smtpHost = se.host;
+        re.storeType = cm.storeType;
+        re.user = cm.user;
+        re.password = cm.password;
     }
 
     public void fetchEmail(){
         cm.check();
         Collections.reverse(cm.emails);
+        System.out.println(cm.emails.size());
 
         cm.emails.stream().forEach((email) -> {
             addInbox(email);
@@ -143,11 +166,12 @@ public final class EmailClient extends javax.swing.JFrame {
         {
             @Override
             public void mouseClicked(MouseEvent event) {
-                int row = InboxContent.rowAtPoint(event.getPoint());
+                selectedRowInbox = InboxContent.rowAtPoint(event.getPoint());
                 
-                String subject = (InboxContent.getValueAt(row, 0)!=null) ? InboxContent.getValueAt(row, 0).toString() : "";
-                String from = (InboxContent.getValueAt(row, 1)!=null) ? InboxContent.getValueAt(row, 1).toString() : "";
-                String message = (InboxContent.getValueAt(row, 2)!= null) ? InboxContent.getValueAt(row, 2).toString() : "";
+                String subject = (InboxContent.getValueAt(selectedRowInbox, 0)!=null) ? InboxContent.getValueAt(selectedRowInbox, 0).toString() : "";
+                String from = (InboxContent.getValueAt(selectedRowInbox, 1)!=null) ? InboxContent.getValueAt(selectedRowInbox, 1).toString() : "";
+                String message = (InboxContent.getValueAt(selectedRowInbox, 2)!= null) ? InboxContent.getValueAt(selectedRowInbox, 2).toString() : "";
+                String id = (InboxContent.getValueAt(selectedRowInbox, 3)!= null) ? InboxContent.getValueAt(selectedRowInbox, 3).toString() : "";
                 
                 jLabel5.setText(subject);
                 jLabel7.setText(from);
@@ -357,9 +381,9 @@ public final class EmailClient extends javax.swing.JFrame {
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(encryptionCheckbox)))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(ComposeLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel11)
-                    .addComponent(jTextField3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGroup(ComposeLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jTextField3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel11))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(ComposeLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(ComposeLayout.createSequentialGroup()
@@ -401,11 +425,11 @@ public final class EmailClient extends javax.swing.JFrame {
 
             },
             new String [] {
-                "Subject", "From", "Message"
+                "Subject", "From", "Message", "id"
             }
         ) {
             Class[] types = new Class [] {
-                java.lang.String.class, java.lang.String.class, java.lang.String.class
+                java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class
             };
 
             public Class getColumnClass(int columnIndex) {
@@ -458,6 +482,11 @@ public final class EmailClient extends javax.swing.JFrame {
         });
 
         jButton2.setText("Reply");
+        jButton2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton2ActionPerformed(evt);
+            }
+        });
 
         jButton3.setText("Delete");
 
@@ -620,6 +649,32 @@ public final class EmailClient extends javax.swing.JFrame {
 
     private void jScrollPane2MouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jScrollPane2MouseReleased
     }//GEN-LAST:event_jScrollPane2MouseReleased
+
+    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
+        System.out.println("Selected Row: " + selectedRowInbox);
+        
+        re.setUp();
+        int ret = re.getMessageData(Integer.valueOf(cm.emails.get(selectedRowInbox)[3]), cm.messages);
+        if (ret!=1){
+            JOptionPane.showConfirmDialog(null, "Message not Found!", "Error", JOptionPane.OK_OPTION, JOptionPane.ERROR_MESSAGE);
+        }
+        
+        ReplyPanel myPanel = new ReplyPanel();
+        
+        myPanel.fromMail = re.msgInfo.get(0);
+        myPanel.replyToMail = re.msgInfo.get(1);
+        myPanel.toMail = re.msgInfo.get(2);
+        myPanel.subjectMail = re.msgInfo.get(3);
+        myPanel.sentMail = re.msgInfo.get(4);
+        myPanel.fillBlank();
+        
+        int result = JOptionPane.showConfirmDialog(null, myPanel, "Reply", JOptionPane.OK_CANCEL_OPTION,JOptionPane.PLAIN_MESSAGE);
+        
+        if (result == JOptionPane.OK_OPTION){
+            int id = Integer.valueOf(cm.emails.get(selectedRowInbox)[3]);
+//            re.Reply(id , cm.messages[id], myPanel.body);
+        }
+    }//GEN-LAST:event_jButton2ActionPerformed
 
     private void jButton7ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton7ActionPerformed
         // Generate private & public key
