@@ -1,3 +1,5 @@
+package functions;
+
 
 import functions.SentMail;
 import java.io.IOException;

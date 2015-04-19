@@ -1,3 +1,4 @@
+import functions.DraftEmail;
 import ecdsa.BigPoint;
 import ecdsa.ECElGamal;
 import functions.CheckingMails;
