@@ -3,7 +3,6 @@ import ecdsa.ECElGamal;
 import functions.CheckingMails;
 import functions.SendEmail;
 import java.awt.HeadlessException;
-import java.awt.Point;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.BufferedWriter;
@@ -59,20 +58,20 @@ public final class EmailClient extends javax.swing.JFrame {
         addPopUpMenu();
         
         model = (DefaultTableModel) InboxContent.getModel();
-        addInbox(new String[]{"a","b","c"});
-        addInbox(new String[]{"d","e","f"});
     }
     
     public void setUpEnvironment(){
         // Sending email
-        se.from = "edmund.ophie@gmail.com";
-        se.username = "rikysamuel";//change accordingly
-        se.password = "900911VF";//change accordingly
+
+        se.from = "rikysamueltan@gmail.com";
+        se.username = "tarnosupratman@gmail.com";//change accordingly
+        se.password = "085722064771";//change accordingly
         se.host = "smtp.gmail.com";
         
         //Retrieve email
         cm.host = "imap.gmail.com";// change accordingly
         cm.storeType = "imap";
+
         cm.user = "edmund.ophie@gmail.com";// change accordingly
         cm.password = "";// change accordingly
     }
@@ -96,14 +95,19 @@ public final class EmailClient extends javax.swing.JFrame {
     
     private void addPopUpMenu(){
         //sets the popup menu so it will show
-        addMouseListener(new MouseAdapter()
+        InboxContent.addMouseListener(new MouseAdapter()
         {
             @Override
             public void mouseClicked(MouseEvent event) {
-                Point point = event.getPoint();
-                int column = InboxContent.columnAtPoint(point);
-
-                JOptionPane.showMessageDialog(InboxContent, "Column header #" + column + " is clicked");
+                int row = InboxContent.rowAtPoint(event.getPoint());
+                
+                String subject = (InboxContent.getValueAt(row, 0)!=null) ? InboxContent.getValueAt(row, 0).toString() : "";
+                String from = (InboxContent.getValueAt(row, 1)!=null) ? InboxContent.getValueAt(row, 1).toString() : "";
+                String message = (InboxContent.getValueAt(row, 2)!= null) ? InboxContent.getValueAt(row, 2).toString() : "";
+                
+                jLabel5.setText(subject);
+                jLabel7.setText(from);
+                jTextArea1.setText(message);
             }
         });
     }
@@ -484,23 +488,9 @@ public final class EmailClient extends javax.swing.JFrame {
     }//GEN-LAST:event_jButton1ActionPerformed
 
     private void jScrollPane2MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jScrollPane2MouseClicked
-        try{
-            int row = InboxContent.getSelectedRow();
-            int col = InboxContent.getSelectedColumn();
-            System.out.println(InboxContent.getModel().getValueAt(row, 0));
-        } catch(HeadlessException e){
-            System.err.println(e);
-        }
     }//GEN-LAST:event_jScrollPane2MouseClicked
 
     private void jScrollPane2MouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jScrollPane2MouseReleased
-        try{
-            int row = InboxContent.getSelectedRow();
-            int col = InboxContent.getSelectedColumn();
-            System.out.println(InboxContent.getModel().getValueAt(row, 0));
-        } catch(HeadlessException e){
-            System.err.println(e);
-        }
     }//GEN-LAST:event_jScrollPane2MouseReleased
 
     private void jButton7ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton7ActionPerformed
