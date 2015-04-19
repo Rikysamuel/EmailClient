@@ -91,7 +91,7 @@ public final class EmailClient extends javax.swing.JFrame {
     public void setUpEnvironment(){
         // Sending email
 
-        se.from = "rikysamueltan@gmail.com";
+        se.from = "tarnosupratman@gmail.com";
         se.username = "tarnosupratman@gmail.com";//change accordingly
         se.password = "085722064771";//change accordingly
         se.host = "smtp.gmail.com";
@@ -99,8 +99,8 @@ public final class EmailClient extends javax.swing.JFrame {
         // Retrieve email
         cm.host = "imap.gmail.com";// change accordingly
         cm.storeType = "imap";
-        cm.user = "tarnosupratman@gmail.com";// change accordingly
-        cm.password = "085722064771";// change accordingly
+        cm.user = "rikysamueltan@gmail.com";// change accordingly
+        cm.password = "Brigade_101";// change accordingly
 
         // Reply email
         re.imapHost = cm.host;
@@ -111,6 +111,7 @@ public final class EmailClient extends javax.swing.JFrame {
     }
 
     public void fetchEmail(){
+        cm.emails.clear();
         cm.check();
         Collections.reverse(cm.emails);
         System.out.println(cm.emails.size());
@@ -225,7 +226,7 @@ public final class EmailClient extends javax.swing.JFrame {
         jButton3 = new javax.swing.JButton();
         jButton4 = new javax.swing.JButton();
         jButton6 = new javax.swing.JButton();
-        jTextField1 = new javax.swing.JTextField();
+        encKey = new javax.swing.JTextField();
         jLabel9 = new javax.swing.JLabel();
         jLabel12 = new javax.swing.JLabel();
         jButton10 = new javax.swing.JButton();
@@ -498,6 +499,11 @@ public final class EmailClient extends javax.swing.JFrame {
         jButton4.setText("Forward");
 
         jButton6.setText("Decrypt");
+        jButton6.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton6ActionPerformed(evt);
+            }
+        });
 
         jLabel9.setText("Ecnryption Key");
 
@@ -539,7 +545,7 @@ public final class EmailClient extends javax.swing.JFrame {
                         .addGap(12, 12, 12)
                         .addGroup(InboxLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(InboxLayout.createSequentialGroup()
-                                .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, 129, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addComponent(encKey, javax.swing.GroupLayout.PREFERRED_SIZE, 129, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                                 .addComponent(jButton6))
                             .addGroup(InboxLayout.createSequentialGroup()
@@ -572,7 +578,7 @@ public final class EmailClient extends javax.swing.JFrame {
                 .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 204, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(InboxLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(encKey, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel9)
                     .addComponent(jButton6))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
@@ -862,6 +868,16 @@ public final class EmailClient extends javax.swing.JFrame {
         // TODO add your handling code here:
     }//GEN-LAST:event_jButton10ActionPerformed
 
+    private void jButton6ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton6ActionPerformed
+        re.setUp();
+        int ret = re.getMessageData(Integer.valueOf(cm.emails.get(selectedRowInbox)[3]), cm.messages);
+        
+        RubikCipher rc = new RubikCipher();
+        String plaintText = rc.EcbDecrypt(cm.emails.get(selectedRowInbox)[2], encKey.getText());
+        
+        JOptionPane.showConfirmDialog(null, plaintText, "Decrypted text", JOptionPane.PLAIN_MESSAGE, JOptionPane.OK_OPTION);
+    }//GEN-LAST:event_jButton6ActionPerformed
+
     /**
      * @param args the command line arguments
      */
@@ -901,6 +917,7 @@ public final class EmailClient extends javax.swing.JFrame {
     private javax.swing.JButton Send;
     private javax.swing.JPanel Sent;
     private javax.swing.JTextField Subject;
+    private javax.swing.JTextField encKey;
     private javax.swing.JCheckBox encryptionCheckbox;
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton10;
@@ -935,7 +952,6 @@ public final class EmailClient extends javax.swing.JFrame {
     private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JTabbedPane jTabbedPane1;
     private javax.swing.JTextArea jTextArea1;
-    private javax.swing.JTextField jTextField1;
     private javax.swing.JTextField jTextField2;
     private javax.swing.JTextField jTextField3;
     private javax.swing.JTextField jTextField4;
