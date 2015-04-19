@@ -29,6 +29,9 @@ public final class SendEmail {
         props = new Properties();
     }
 
+    /**
+     * set email server property
+     */
     public void setProps(){
          props.put("mail.smtp.auth", "true");
          props.put("mail.smtp.starttls.enable", "true");
@@ -36,6 +39,9 @@ public final class SendEmail {
          props.put("mail.smtp.port", "587");
     }
 
+    /**
+     * set and get session object
+     */
     public void setSession() {
          // Get the Session object.
          session = Session.getInstance(props,
@@ -48,6 +54,15 @@ public final class SendEmail {
 
      }
 
+    /**
+     * Send email to specific recipient
+     * @param to the recipient
+     * @param cc the cc
+     * @param subject the email's subject
+     * @param msgBody the content
+     * @param filename the attachment file
+     * @return 
+     */
     public boolean send(String to, String cc, String subject, String msgBody, String filename){
         setProps();
         setSession();

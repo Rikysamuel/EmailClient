@@ -10,15 +10,12 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Properties;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.mail.Folder;
 import javax.mail.Message;
 import javax.mail.MessagingException;
 import javax.mail.Session;
 import javax.mail.Store;
 import javax.mail.Transport;
-import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 
@@ -42,6 +39,9 @@ public class ReplyToEmail {
         msgInfo = new ArrayList<>();
     }
     
+    /**
+     * Set Up part, initiation
+     */
     public void setUp() 
     {
        Properties properties = new Properties();
@@ -57,6 +57,12 @@ public class ReplyToEmail {
        session = Session.getDefaultInstance(properties);
     }
     
+    /**
+     * get inbox' messages and get the data needed
+     * @param messageId email id in the table inbox JTable
+     * @param messages list of email
+     * @return 1 if success to get the data info
+     */
     public int getMessageData(int messageId, Message[] messages){
         msgInfo.clear();
         System.out.println("message id:" + messageId);
@@ -107,6 +113,11 @@ public class ReplyToEmail {
         return -1;
     }
     
+    /**
+     * mehod used to reply the email by ID
+     * @param replyMsg is the content of the replied mail
+     * @return 
+     */
     public boolean Reply(String replyMsg){
         try {            
             Message replyMessage = new MimeMessage(session);
@@ -126,12 +137,6 @@ public class ReplyToEmail {
             } finally {
                 t.close();
             }
-            
-            System.out.println("success");
-            
-            // close the store and folder objects
-//            folder.close(false);
-//            store.close();
             
             return true;
         } catch (MessagingException ex) {
