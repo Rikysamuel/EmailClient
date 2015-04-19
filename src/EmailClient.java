@@ -87,7 +87,7 @@ public final class EmailClient extends javax.swing.JFrame {
         cm.host = "imap.gmail.com";// change accordingly
         cm.storeType = "imap";
         cm.user = "rikysamueltan@gmail.com";// change accordingly
-        cm.password = "Brigade_101";// change accordingly
+        cm.password = "";// change accordingly
 
         // Reply email
         re.imapHost = cm.host;
