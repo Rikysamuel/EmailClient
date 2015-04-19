@@ -15,7 +15,6 @@ import java.math.BigInteger;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.util.Collections;
-<<<<<<< HEAD
 import java.util.Properties;
 import javafx.util.Pair;
 import javax.mail.Message;
@@ -25,8 +24,6 @@ import javax.mail.Session;
 import javax.mail.Transport;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
-=======
->>>>>>> 466832cf3c88fdcb4c885353f8cd22bc50af8176
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
