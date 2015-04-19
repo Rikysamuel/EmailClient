@@ -99,8 +99,8 @@ public final class EmailClient extends javax.swing.JFrame {
         // Retrieve email
         cm.host = "imap.gmail.com";// change accordingly
         cm.storeType = "imap";
-        cm.user = "rikysamueltan@gmail.com";// change accordingly
-        cm.password = "Brigade_101";// change accordingly
+        cm.user = "zigxar@gmail.com";// change accordingly
+        cm.password = "zigxar123";// change accordingly
 
         // Reply email
         re.imapHost = cm.host;
@@ -139,7 +139,7 @@ public final class EmailClient extends javax.swing.JFrame {
             Pair<BigInteger, BigInteger> signature = el.generateSignature(new BigInteger(hash, 16));
 //            System.out.println("Signature:\n" + signature.getKey().toString(16) + "\n" + signature.getValue().toString(16));
             // Append signature to message
-            message += "<ds>\n" + signature.getKey().toString(16) + " " + signature.getValue().toString(16) + "\n</ds>";
+            message += "<ds>" + signature.getKey().toString(16) + " " + signature.getValue().toString(16) + "</ds>";
             
         }
         
@@ -233,6 +233,7 @@ public final class EmailClient extends javax.swing.JFrame {
         jButton11 = new javax.swing.JButton();
         jLabel13 = new javax.swing.JLabel();
         jTextField4 = new javax.swing.JTextField();
+        jLabel14 = new javax.swing.JLabel();
         Draft = new javax.swing.JPanel();
         Sent = new javax.swing.JPanel();
         jPanel2 = new javax.swing.JPanel();
@@ -507,7 +508,7 @@ public final class EmailClient extends javax.swing.JFrame {
 
         jLabel9.setText("Ecnryption Key");
 
-        jLabel12.setText("Private Key");
+        jLabel12.setText("Public Key");
 
         jButton10.setText("Verify");
         jButton10.addActionListener(new java.awt.event.ActionListener() {
@@ -517,10 +518,17 @@ public final class EmailClient extends javax.swing.JFrame {
         });
 
         jButton11.setText("Browse file...");
+        jButton11.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton11ActionPerformed(evt);
+            }
+        });
 
         jLabel13.setText("jLabel13");
 
         jTextField4.setText("jTextField4");
+
+        jLabel14.setFont(new java.awt.Font("Lucida Grande", 1, 24)); // NOI18N
 
         javax.swing.GroupLayout InboxLayout = new javax.swing.GroupLayout(Inbox);
         Inbox.setLayout(InboxLayout);
@@ -545,10 +553,6 @@ public final class EmailClient extends javax.swing.JFrame {
                         .addGap(12, 12, 12)
                         .addGroup(InboxLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(InboxLayout.createSequentialGroup()
-                                .addComponent(encKey, javax.swing.GroupLayout.PREFERRED_SIZE, 129, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                .addComponent(jButton6))
-                            .addGroup(InboxLayout.createSequentialGroup()
                                 .addGroup(InboxLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                     .addComponent(jTextField4, javax.swing.GroupLayout.PREFERRED_SIZE, 391, javax.swing.GroupLayout.PREFERRED_SIZE)
                                     .addGroup(InboxLayout.createSequentialGroup()
@@ -556,8 +560,14 @@ public final class EmailClient extends javax.swing.JFrame {
                                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                         .addComponent(jLabel13)))
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(jButton10, javax.swing.GroupLayout.PREFERRED_SIZE, 102, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                        .addGap(0, 0, Short.MAX_VALUE))
+                                .addComponent(jButton10, javax.swing.GroupLayout.PREFERRED_SIZE, 102, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(0, 0, Short.MAX_VALUE))
+                            .addGroup(InboxLayout.createSequentialGroup()
+                                .addComponent(encKey, javax.swing.GroupLayout.PREFERRED_SIZE, 129, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(jButton6)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(jLabel14))))
                     .addComponent(jScrollPane3)
                     .addComponent(jScrollPane2))
                 .addContainerGap())
@@ -580,7 +590,8 @@ public final class EmailClient extends javax.swing.JFrame {
                 .addGroup(InboxLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(encKey, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel9)
-                    .addComponent(jButton6))
+                    .addComponent(jButton6)
+                    .addComponent(jLabel14))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addGroup(InboxLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addGroup(InboxLayout.createSequentialGroup()
@@ -863,9 +874,86 @@ public final class EmailClient extends javax.swing.JFrame {
     private void jTextField3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextField3ActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_jTextField3ActionPerformed
-
+    
+    private BigPoint getMessageSignature() {
+        String message = jTextArea1.getText();
+        String signature= new String();
+        // Get signature raw
+        for(int i=0;i<message.length()-3;++i) {
+            if(message.substring(i, i+4).equalsIgnoreCase("<ds>")) {
+                i+=4;
+                while(message.charAt(i)!='<') {
+                    signature+=message.charAt(i);
+                    ++i;
+                }
+                break;
+            }
+        }
+        System.out.println("Signature: " + signature);
+        // Get r and s
+        BigPoint ds = new BigPoint();
+        String temp = new String();
+        for(int i=0;i<signature.length();++i) {
+            if(signature.charAt(i)==' ') {
+                System.out.println("r: asd" + temp + "asd");
+                ds.x = new BigInteger(temp, 16);
+                temp ="";
+            } else {
+                temp += signature.charAt(i);
+            }
+        }        
+        ds.y = new BigInteger(temp, 16);
+        
+        return ds;
+    }
+    
+    private BigInteger getMessageHash() {
+        String message = jTextArea1.getText();
+        String msgBody = "";
+        
+        // Get message body
+        int i=0;
+        while(i<message.length()-3 && !message.substring(i, i+4).equalsIgnoreCase("<ds>")) {
+            msgBody+=message.charAt(i);
+            ++i;
+        }
+        
+        // Get hash
+        SHA1 sha = new SHA1();
+        BigInteger hash = new BigInteger(sha.digest(msgBody.getBytes()), 16);
+        
+        return hash;
+    }
+    
     private void jButton10ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton10ActionPerformed
-        // TODO add your handling code here:
+        // Get public key from user
+        String pubKey = jTextField4.getText();
+        int i=0; String temp="";
+        while(pubKey.charAt(i) != ' ') {
+            temp += pubKey.charAt(i);
+            ++i;
+        }
+        ++i;
+        BigInteger r = new BigInteger(temp, 16);
+        
+        temp="";
+        for(int j=i;j<pubKey.length();++j) {
+            temp += pubKey.charAt(j);
+        }
+        BigInteger s = new BigInteger(temp, 16);
+        BigPoint publicKey = new BigPoint(r,s);
+        
+        // Get message hash
+        BigInteger hash = getMessageHash();
+        
+        // Get signature from message
+        BigPoint Signature = getMessageSignature();
+        ECElGamal el = new ECElGamal();
+        boolean isVerified = el.verifySignature(Signature.x, Signature.y, hash, publicKey);
+        if(isVerified)
+            jLabel14.setText("Verified!");
+        else
+            jLabel14.setText("Invalid!");
     }//GEN-LAST:event_jButton10ActionPerformed
 
     private void jButton6ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton6ActionPerformed
@@ -873,10 +961,48 @@ public final class EmailClient extends javax.swing.JFrame {
         int ret = re.getMessageData(Integer.valueOf(cm.emails.get(selectedRowInbox)[3]), cm.messages);
         
         RubikCipher rc = new RubikCipher();
-        String plaintText = rc.EcbDecrypt(cm.emails.get(selectedRowInbox)[2], encKey.getText());
+        String plainText = rc.EcbDecrypt(cm.emails.get(selectedRowInbox)[2], encKey.getText());
         
-        JOptionPane.showConfirmDialog(null, plaintText, "Decrypted text", JOptionPane.PLAIN_MESSAGE, JOptionPane.OK_OPTION);
+//        JOptionPane.showConfirmDialog(null, plainText, "Decrypted text", JOptionPane.PLAIN_MESSAGE, JOptionPane.OK_OPTION);
+        jTextArea1.setText(plainText);
+        
     }//GEN-LAST:event_jButton6ActionPerformed
+
+    private void jButton11ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton11ActionPerformed
+        int returnVal = jFileChooser1.showOpenDialog(this);
+        if(returnVal == JFileChooser.APPROVE_OPTION) {
+            jTextField4.setText("");
+            File publicKeyFile = jFileChooser1.getSelectedFile();
+            jLabel13.setText(publicKeyFile.getName());
+            Charset charset = Charset.forName("UTF-8");
+            try {
+                BufferedReader reader = Files.newBufferedReader(publicKeyFile.toPath(), charset);
+                String pubKey = reader.readLine();
+                
+                int i=0; String r="";
+                while(pubKey.charAt(i) != ' ') {
+                    r += pubKey.charAt(i);
+                    ++i;
+                }
+                ++i;
+                
+                String s="";
+                for(int j=i;j<pubKey.length();++j) {
+                    s += pubKey.charAt(j);
+                }
+                
+                BigPoint publicKey = new BigPoint(new BigInteger(r), new BigInteger(s));
+                BigInteger temp = publicKey.x;
+                BigInteger temp2 = publicKey.y;
+                jTextField4.setText(temp.toString(16) + " " + temp2.toString(16));
+            } catch (IOException ex) {
+                System.out.println("Error reading file:" + publicKeyFile.getAbsolutePath());
+            }
+            
+        } else {
+            System.out.println("File access cancelled by user.");
+        }
+    }//GEN-LAST:event_jButton11ActionPerformed
 
     /**
      * @param args the command line arguments
@@ -936,6 +1062,7 @@ public final class EmailClient extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel11;
     private javax.swing.JLabel jLabel12;
     private javax.swing.JLabel jLabel13;
+    private javax.swing.JLabel jLabel14;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
