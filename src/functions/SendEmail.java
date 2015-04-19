@@ -39,6 +39,7 @@ public final class SendEmail {
                  return new PasswordAuthentication(username, password);
              }
            });
+        
     }
    
    public boolean send(String to, String subject, String msgBody){
