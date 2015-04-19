@@ -889,13 +889,12 @@ public final class EmailClient extends javax.swing.JFrame {
                 break;
             }
         }
-        System.out.println("Signature: " + signature);
+        
         // Get r and s
         BigPoint ds = new BigPoint();
         String temp = new String();
         for(int i=0;i<signature.length();++i) {
             if(signature.charAt(i)==' ') {
-                System.out.println("r: asd" + temp + "asd");
                 ds.x = new BigInteger(temp, 16);
                 temp ="";
             } else {
