@@ -27,7 +27,7 @@ public final class SendEmail {
         props.put("mail.smtp.auth", "true");
         props.put("mail.smtp.starttls.enable", "true");
         props.put("mail.smtp.host", host);
-        props.put("mail.smtp.port", "25");
+        props.put("mail.smtp.port", "465");
    }
     
    public void setSession() {
@@ -39,6 +39,7 @@ public final class SendEmail {
                  return new PasswordAuthentication(username, password);
              }
            });
+        
     }
    
    public boolean send(String to, String subject, String msgBody){

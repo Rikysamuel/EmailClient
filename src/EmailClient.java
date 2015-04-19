@@ -1,9 +1,16 @@
+import ecdsa.BigPoint;
+import ecdsa.ECElGamal;
 import functions.CheckingMails;
 import functions.SendEmail;
 import java.awt.HeadlessException;
 import java.awt.Point;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.math.BigInteger;
 import java.util.Collections;
 import java.util.Properties;
 import javax.mail.Message;
@@ -13,6 +20,7 @@ import javax.mail.Session;
 import javax.mail.Transport;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
+import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
 
@@ -35,6 +43,10 @@ public final class EmailClient extends javax.swing.JFrame {
     DefaultTableModel model;
     SendEmail se;
     CheckingMails cm;
+    
+    /* ECDSA Attributes */
+    ECElGamal el;
+    
     /**
      * Creates new form EmailClient
      */
@@ -53,16 +65,16 @@ public final class EmailClient extends javax.swing.JFrame {
     
     public void setUpEnvironment(){
         // Sending email
-        se.from = "rikz.samuel@gmail.com";
+        se.from = "edmund.ophie@gmail.com";
         se.username = "rikysamuel";//change accordingly
         se.password = "900911VF";//change accordingly
-        se.host = "relay.jangosmtp.net";
+        se.host = "smtp.gmail.com";
         
         //Retrieve email
         cm.host = "imap.gmail.com";// change accordingly
         cm.storeType = "imap";
-        cm.user = "rikysamueltan@gmail.com";// change accordingly
-        cm.password = "Brigade_101";// change accordingly
+        cm.user = "edmund.ophie@gmail.com";// change accordingly
+        cm.password = "";// change accordingly
     }
 
     public void fetchEmail(){
@@ -109,6 +121,7 @@ public final class EmailClient extends javax.swing.JFrame {
         menu1 = new java.awt.Menu();
         menu2 = new java.awt.Menu();
         MenuButton = new javax.swing.ButtonGroup();
+        jFileChooser1 = new javax.swing.JFileChooser();
         jTabbedPane1 = new javax.swing.JTabbedPane();
         Compose = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
@@ -138,6 +151,10 @@ public final class EmailClient extends javax.swing.JFrame {
         jButton4 = new javax.swing.JButton();
         Draft = new javax.swing.JPanel();
         Sent = new javax.swing.JPanel();
+        jPanel2 = new javax.swing.JPanel();
+        jButton7 = new javax.swing.JButton();
+        jButton8 = new javax.swing.JButton();
+        jButton9 = new javax.swing.JButton();
         jLabel4 = new javax.swing.JLabel();
 
         menu1.setLabel("File");
@@ -376,6 +393,56 @@ public final class EmailClient extends javax.swing.JFrame {
 
         jTabbedPane1.addTab("Sent Email", Sent);
 
+        jButton7.setText("Generate Key Pair");
+        jButton7.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton7ActionPerformed(evt);
+            }
+        });
+
+        jButton8.setText("Simpan Private Key");
+        jButton8.setEnabled(false);
+        jButton8.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton8ActionPerformed(evt);
+            }
+        });
+
+        jButton9.setText("Simpan Public Key");
+        jButton9.setEnabled(false);
+        jButton9.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton9ActionPerformed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
+        jPanel2.setLayout(jPanel2Layout);
+        jPanel2Layout.setHorizontalGroup(
+            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel2Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jButton7)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jButton9)
+                    .addComponent(jButton8))
+                .addContainerGap(685, Short.MAX_VALUE))
+        );
+        jPanel2Layout.setVerticalGroup(
+            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel2Layout.createSequentialGroup()
+                .addGap(6, 6, 6)
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jButton7)
+                    .addComponent(jButton8))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jButton9)
+                .addContainerGap())
+        );
+
+        jTabbedPane1.addTab("Generate Key", jPanel2);
+
         jLabel4.setFont(new java.awt.Font("Tahoma", 3, 48)); // NOI18N
         jLabel4.setText("EMAIL CLIENT");
 
@@ -436,6 +503,70 @@ public final class EmailClient extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_jScrollPane2MouseReleased
 
+    private void jButton7ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton7ActionPerformed
+        // Generate private & public key
+        el = new ECElGamal();
+        BigInteger privateKey = el.generatePrivateKey();
+        BigPoint publicKey = el.generatePublicKey(privateKey);
+        
+        JOptionPane.showMessageDialog(this, "Key pair generated successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
+        jButton8.setEnabled(true);
+        jButton9.setEnabled(true);
+        System.out.println("priv: " + el.getPrivateKey().toString());
+        System.out.println("pub: " + el.getPublicKey().x + ", " + el.getPublicKey().y);
+
+    }//GEN-LAST:event_jButton7ActionPerformed
+
+    private void jButton8ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton8ActionPerformed
+        int returnVal = jFileChooser1.showSaveDialog(this);
+        if(returnVal == JFileChooser.APPROVE_OPTION) {
+            try {
+                // Dapatkan lokasi save
+                String path = jFileChooser1.getSelectedFile().getAbsolutePath();
+                File privateKeyFile = new File(path);
+
+                // if file doesnt exists, then create it
+                if (!privateKeyFile.exists()) {
+                    privateKeyFile.createNewFile();
+                }
+
+                FileWriter fw = new FileWriter(privateKeyFile.getAbsoluteFile());
+                BufferedWriter bw = new BufferedWriter(fw);
+                bw.write(el.getPrivateKey().toString());
+                bw.close();
+            } catch (IOException ex) {
+                System.out.println("Error processing file." + ex);
+            }
+        } else {
+            System.out.println("File access cancelled by user.");
+        }
+    }//GEN-LAST:event_jButton8ActionPerformed
+
+    private void jButton9ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton9ActionPerformed
+        int returnVal = jFileChooser1.showSaveDialog(this);
+        if(returnVal == JFileChooser.APPROVE_OPTION) {
+            try {
+                // Dapatkan lokasi save
+                String path = jFileChooser1.getSelectedFile().getAbsolutePath();
+                File publicKeyFile = new File(path);
+
+                // if file doesnt exists, then create it
+                if (!publicKeyFile.exists()) {
+                    publicKeyFile.createNewFile();
+                }
+
+                FileWriter fw = new FileWriter(publicKeyFile.getAbsoluteFile());
+                BufferedWriter bw = new BufferedWriter(fw);
+                bw.write(el.getPublicKey().x + " " + el.getPublicKey().y);
+                bw.close();
+            } catch (IOException ex) {
+                System.out.println("Error processing file." + ex);
+            }
+        } else {
+            System.out.println("File access cancelled by user.");
+        }
+    }//GEN-LAST:event_jButton9ActionPerformed
+
     /**
      * @param args the command line arguments
      */
@@ -482,6 +613,10 @@ public final class EmailClient extends javax.swing.JFrame {
     private javax.swing.JButton jButton4;
     private javax.swing.JButton jButton5;
     private javax.swing.JButton jButton6;
+    private javax.swing.JButton jButton7;
+    private javax.swing.JButton jButton8;
+    private javax.swing.JButton jButton9;
+    private javax.swing.JFileChooser jFileChooser1;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
@@ -490,6 +625,7 @@ public final class EmailClient extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel7;
     private javax.swing.JPanel jPanel1;
+    private javax.swing.JPanel jPanel2;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane3;
