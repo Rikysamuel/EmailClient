@@ -83,6 +83,11 @@ public class ECElGamal {
     public BigPoint getPublicKey() {
         return publicKey;
     }
+    
+    public void setPrivateKey(BigInteger pK) {
+        privateKey = pK;
+        generatePublicKey(privateKey);
+    }
     /**
      * @return the ellipticCurve
      */

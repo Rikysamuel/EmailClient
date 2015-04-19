@@ -5,13 +5,17 @@ import functions.SendEmail;
 import java.awt.HeadlessException;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.math.BigInteger;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
 import java.util.Collections;
 import java.util.Properties;
+import javafx.util.Pair;
 import javax.mail.Message;
 import javax.mail.MessagingException;
 import javax.mail.PasswordAuthentication;
@@ -22,6 +26,7 @@ import javax.mail.internet.MimeMessage;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
+import rubikcipher.RubikCipher;
 
 /*
  * To change this license header, choose License Headers in Project Properties.
@@ -96,7 +101,36 @@ public final class EmailClient extends javax.swing.JFrame {
     }
     
     public boolean send(){
-        return se.send(Recipient.getText(), Subject.getText(), Body.getText());
+        String message = Body.getText();        
+        String encKey = jTextField3.getText();
+//        System.out.println("Plain message:\n" + message);
+        
+        // Signature
+        if(signatureCheckbox.isSelected()) {
+            // Get hash from message
+            SHA1 sha = new SHA1();
+            String hash = sha.digest(message.getBytes());
+//            System.out.println("Hash:\n" + hash);
+            
+            // Generate signature from hash
+            ECElGamal el = new ECElGamal();
+            el.setPrivateKey(new BigInteger(jTextField2.getText(), 16));
+            Pair<BigInteger, BigInteger> signature = el.generateSignature(new BigInteger(hash, 16));
+//            System.out.println("Signature:\n" + signature.getKey().toString(16) + "\n" + signature.getValue().toString(16));
+            // Append signature to message
+            message += "<ds>\n" + signature.getKey().toString(16) + " " + signature.getValue().toString(16) + "\n</ds>";
+            
+        }
+        
+        if(encryptionCheckbox.isSelected()) {
+            RubikCipher rc = new RubikCipher();
+            message = rc.EcbEncrypt(message, encKey);
+        }
+//        System.out.println("Final message:\n" + message);
+        RubikCipher rc = new RubikCipher();
+        
+//        System.out.println("Decrypt: " + rc.EcbDecrypt(message, encKey));
+        return se.send(Recipient.getText(), Subject.getText(), message);
     }
     
     public void addInbox(Object[] rowData){
@@ -150,8 +184,8 @@ public final class EmailClient extends javax.swing.JFrame {
         jPanel3 = new javax.swing.JPanel();
         jButton5 = new javax.swing.JButton();
         jLabel10 = new javax.swing.JLabel();
-        jCheckBox3 = new javax.swing.JCheckBox();
-        jCheckBox4 = new javax.swing.JCheckBox();
+        signatureCheckbox = new javax.swing.JCheckBox();
+        encryptionCheckbox = new javax.swing.JCheckBox();
         jTextField2 = new javax.swing.JTextField();
         jLabel8 = new javax.swing.JLabel();
         jLabel11 = new javax.swing.JLabel();
@@ -222,17 +256,17 @@ public final class EmailClient extends javax.swing.JFrame {
 
         jLabel10.setText("Private Key");
 
-        jCheckBox3.setText("Use Signature");
-        jCheckBox3.addActionListener(new java.awt.event.ActionListener() {
+        signatureCheckbox.setText("Use Signature");
+        signatureCheckbox.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jCheckBox3ActionPerformed(evt);
+                signatureCheckboxActionPerformed(evt);
             }
         });
 
-        jCheckBox4.setText("Use Encryption");
-        jCheckBox4.addActionListener(new java.awt.event.ActionListener() {
+        encryptionCheckbox.setText("Use Encryption");
+        encryptionCheckbox.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jCheckBox4ActionPerformed(evt);
+                encryptionCheckboxActionPerformed(evt);
             }
         });
 
@@ -242,7 +276,7 @@ public final class EmailClient extends javax.swing.JFrame {
             }
         });
 
-        jLabel8.setText("asd");
+        jLabel8.setText("filename");
 
         jLabel11.setText("Encryption Key");
 
@@ -263,8 +297,8 @@ public final class EmailClient extends javax.swing.JFrame {
                         .addGroup(ComposeLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(ComposeLayout.createSequentialGroup()
                                 .addGroup(ComposeLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(jCheckBox4)
-                                    .addComponent(jCheckBox3))
+                                    .addComponent(encryptionCheckbox)
+                                    .addComponent(signatureCheckbox))
                                 .addGap(298, 298, 298))
                             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, ComposeLayout.createSequentialGroup()
                                 .addGap(29, 29, 29)
@@ -310,7 +344,7 @@ public final class EmailClient extends javax.swing.JFrame {
             ComposeLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(ComposeLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jCheckBox3)
+                .addComponent(signatureCheckbox)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(ComposeLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -321,7 +355,7 @@ public final class EmailClient extends javax.swing.JFrame {
                             .addComponent(jButton5)
                             .addComponent(jLabel8))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jCheckBox4)))
+                        .addComponent(encryptionCheckbox)))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(ComposeLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel11)
@@ -652,11 +686,28 @@ public final class EmailClient extends javax.swing.JFrame {
     }//GEN-LAST:event_jButton9ActionPerformed
 
     private void jButton5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton5ActionPerformed
-        // TODO add your handling code here:
+        jTextField2.setText("");
+        int returnVal = jFileChooser1.showOpenDialog(this);
+        if(returnVal == JFileChooser.APPROVE_OPTION) {
+            File privateKeyFile = jFileChooser1.getSelectedFile();
+            jLabel8.setText(privateKeyFile.getName());
+            Charset charset = Charset.forName("UTF-8");
+            try {
+                BufferedReader reader = Files.newBufferedReader(privateKeyFile.toPath(), charset);
+                String privKey = reader.readLine();
+                BigInteger pK = new BigInteger(privKey);
+                jTextField2.setText(pK.toString(16));
+            } catch (IOException ex) {
+                System.out.println("Error reading file:" + ex);
+            }
+            
+        } else {
+            System.out.println("File access cancelled by user.");
+        }
     }//GEN-LAST:event_jButton5ActionPerformed
 
-    private void jCheckBox3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCheckBox3ActionPerformed
-        if(jCheckBox3.isSelected()) {
+    private void signatureCheckboxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_signatureCheckboxActionPerformed
+        if(signatureCheckbox.isSelected()) {
             jTextField2.setEnabled(true);
             jButton5.setEnabled(true);
             jLabel10.setEnabled(true);
@@ -667,17 +718,17 @@ public final class EmailClient extends javax.swing.JFrame {
             jLabel10.setEnabled(false);
             jLabel8.setEnabled(false);
         }
-    }//GEN-LAST:event_jCheckBox3ActionPerformed
+    }//GEN-LAST:event_signatureCheckboxActionPerformed
 
-    private void jCheckBox4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCheckBox4ActionPerformed
-        if(jCheckBox4.isSelected()) {
+    private void encryptionCheckboxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_encryptionCheckboxActionPerformed
+        if(encryptionCheckbox.isSelected()) {
             jTextField3.setEnabled(true);
             jLabel11.setEnabled(true);
         } else {
             jTextField3.setEnabled(false);
             jLabel11.setEnabled(false);
         }
-    }//GEN-LAST:event_jCheckBox4ActionPerformed
+    }//GEN-LAST:event_encryptionCheckboxActionPerformed
 
     private void jTextField2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextField2ActionPerformed
         // TODO add your handling code here:
@@ -726,6 +777,7 @@ public final class EmailClient extends javax.swing.JFrame {
     private javax.swing.JButton Send;
     private javax.swing.JPanel Sent;
     private javax.swing.JTextField Subject;
+    private javax.swing.JCheckBox encryptionCheckbox;
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton2;
     private javax.swing.JButton jButton3;
@@ -734,8 +786,6 @@ public final class EmailClient extends javax.swing.JFrame {
     private javax.swing.JButton jButton7;
     private javax.swing.JButton jButton8;
     private javax.swing.JButton jButton9;
-    private javax.swing.JCheckBox jCheckBox3;
-    private javax.swing.JCheckBox jCheckBox4;
     private javax.swing.JFileChooser jFileChooser1;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;
@@ -760,5 +810,6 @@ public final class EmailClient extends javax.swing.JFrame {
     private java.awt.Menu menu1;
     private java.awt.Menu menu2;
     private java.awt.MenuBar menuBar1;
+    private javax.swing.JCheckBox signatureCheckbox;
     // End of variables declaration//GEN-END:variables
 }
